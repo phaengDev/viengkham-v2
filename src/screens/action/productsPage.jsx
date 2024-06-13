@@ -23,7 +23,8 @@ function ProductsPage() {
         option_id_fk: '',
         qty_baht: '',
         tiles_id_fk: '',
-        file_image: null
+        file_image: null,
+        porduct_detail:''
     })
     const handleChange = (name, value) => {
         setInputs({
@@ -40,8 +41,12 @@ function ProductsPage() {
         formData.append('option_id_fk', inputs.option_id_fk);
         formData.append('qty_baht', inputs.qty_baht);
         formData.append('tiles_id_fk', inputs.tiles_id_fk);
-        formData.append('file', inputs.file_image);
-        // console.log(formData)
+        formData.append('file_image', inputs.file_image);
+        // const imputData=new FormData();
+        // for(const key in inputs){
+        //     imputData.append(key,inputs[key])
+        // }
+        // console.log(inputs)
         try {
             axios.post(api + 'posd/create', formData)
                 .then(function (res) {
@@ -73,10 +78,12 @@ function ProductsPage() {
         setFormAdd(data)
         if (data === true) {
             setInputs({
+                product_uuid: '',
                 option_id_fk: '',
                 qty_baht: '',
                 tiles_id_fk: '',
-                file_image: null
+                file_image: null,
+                porduct_detail:''
             });
             setImageUrl('assets/img/icon/camera.png');
         }
@@ -90,7 +97,8 @@ function ProductsPage() {
             option_id_fk: item.option_id_fk,
             qty_baht: item.qty_baht,
             tiles_id_fk: item.tiles_id_fk,
-            file_image: null
+            file_image: null,
+            porduct_detail:item.porduct_detail
         })
         if (item.file_image) {
             setImageUrl(url + 'pos/' + item.file_image);
@@ -227,47 +235,7 @@ function ProductsPage() {
     };
     //===========================\\
 
-
-    // const handleSubmitEdit = async (e) => {
-    //     e.preventDefault();
-    //     // 
-    //     const formData = new FormData();
-    //     formData.append('product_uuid', inputs.product_uuid);
-    //     formData.append('option_id_fk', inputs.option_id_fk);
-    //     formData.append('qty_baht', inputs.qty_baht);
-    //     formData.append('tiles_id_fk', inputs.tiles_id_fk);
-    //     formData.append('file', inputs.file_image);
-    //     try {
-    //         axios.post(api + 'posd/edit', formData)
-    //             .then(function (res) {
-    //                 // console.log(res.data)
-    //                 alert(res.status)
-    //                 if (res.status === 200) {
-    //                     fetchPorduct();
-    //                     Alert.successData(res.data.message);
-    //                     setInputs({
-    //                         product_uuid:'',
-    //                         option_id_fk: '',
-    //                         qty_baht: '',
-    //                         tiles_id_fk: '',
-    //                         file_image: null
-    //                     })
-    //                     setFormEdit(false)
-    //                     setFormAdd(false)
-    //                 } else if (res.status === 400) {
-    //                     Alert.warningData(res.data.message)
-    //                 } else {
-    //                     Alert.errorData(res.data.message)
-    //                 }
-    //             });
-    //     } catch (error) {
-    //         console.error('Error inserting data:', error);
-    //     }
-    // };
-
-
     const [selectedFile, setSelectedFile] = useState(null);
-
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setInputs({
@@ -364,7 +332,7 @@ function ProductsPage() {
                 <div className="row">
                     <div className={formAdd === false ? 'col-sm-12' : 'col-sm-8'}>
                         <div className="panel panel-inverse pb-3">
-                            <div className="panel-heading">
+                            {/* <div className="panel-heading">
                                 <h4 className="panel-title fs-16px">ລາຍການສິນຄ້າ</h4>
                                 <div className="panel-heading-btn">
                                     {formAdd === true ?
@@ -372,7 +340,7 @@ function ProductsPage() {
                                         : ''
                                     }
                                 </div>
-                            </div>
+                            </div> */}
                             <div className="panel-body ">
 
                                 <div className="row mb-4">

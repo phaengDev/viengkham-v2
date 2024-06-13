@@ -1,7 +1,8 @@
 import React, { useState, useEffect,useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Input, Placeholder } from 'rsuite'
-import { Config } from '../../config/connect';
+import '../../idCard.css';
+import { Config,Urlimage } from '../../config/connect';
 import Alert from '../../utils/config';
 import moment from 'moment';
 import Swal from "sweetalert2";
@@ -9,8 +10,10 @@ import axios from 'axios';
 import { QRCodeSVG } from 'qrcode.react';
 import Modal from 'react-bootstrap/Modal';
 import { toPng } from 'html-to-image';
+
 export default function StaffPage() {
   const api = Config.urlApi;
+  const url=Urlimage.url;
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true);
   const [filterName, setFilterName] = useState([])
@@ -124,11 +127,26 @@ export default function StaffPage() {
   }
   //============== 
   const [idcode, setIdcode] = useState('');
-  const [staffName, setStaffName] = useState('')
+  const [staff, setStaff] = useState({
+    profile:'',
+    id_code:'',
+    first_name:'',
+    last_name:'',
+    staff_tel:'',
+    staff_email:''
+
+  })
   const [showqr, setShowqr] = useState(false)
-  const viewBarcode = (barCode, staffName) => {
-    setIdcode(barCode);
-    setStaffName(staffName);
+  const viewBarcode = (index) => {
+    setIdcode(index.id_code);
+    setStaff({
+      profile:index.profile,
+    id_code:index.id_code,
+    first_name:index.first_name,
+    last_name:index.last_name,
+    staff_tel:index.staff_tel,
+    staff_email:index.staff_email
+    });
     setShowqr(true)
   }
   const qrRef = useRef(null);
@@ -180,6 +198,7 @@ export default function StaffPage() {
               <thead className='thead-plc'>
                 <tr>
                   <th width="1%" className='text-center'>ລ/ດ</th>
+                  <th width="5%" className='text-center'>ຮູບ</th>
                   <th className='text-center'>ລະຫັດ</th>
                   <th className=''>ຊື່ແລະນາມສະກຸນ</th>
                   <th className='text-center'>ວັນເດືອນປິເກີດ</th>
@@ -192,13 +211,14 @@ export default function StaffPage() {
               </thead>
               <tbody>
                 {isLoading === true ? (<tr>
-                  <td colSpan={11}><Placeholder.Grid rows={7} columns={9} active /></td>
+                  <td colSpan={12}><Placeholder.Grid rows={7} columns={9} active /></td>
                 </tr>) : (<>
                   {
                     currentItems.length > 0 ? (
                       currentItems.map((item, key) => (
                         <tr key={key}>
                           <td className='text-center' width='1%'>{key + 1}</td>
+                        <td className='text-center'> <img src={item.profile && item.profile !=='null'? url+'porfile/'+item.profile: 'assets/img/icon/user.webp'} class="rounded h-30px" /></td>
                           <td className='text-center'>{item.id_code}</td>
                           <td>{item.first_name + ' ' + item.last_name}</td>
                           <td className='text-center'>{moment(item.birthday).format('DD/MM/YYYY')}</td>
@@ -209,7 +229,7 @@ export default function StaffPage() {
                           <td>{item.province_name}</td>
                           <td className='text-center'>{moment(item.register_date).format('DD/MM/YYYY')}</td>
                           <td className='text-center' width='10%'>
-                            <button type='button' onClick={() => viewBarcode(item.id_code, item.first_name + ' ' + item.last_name)} className="btn btn-green btn-xs me-2">
+                            <button type='button' onClick={() => viewBarcode(item)} className="btn btn-green btn-xs me-2">
                               <i class="fa-solid fa-qrcode"></i>
                             </button>
                             <button type='button' onClick={() => handleEdit(item.staff_uuid)} className="btn btn-blue btn-xs me-2">
@@ -224,7 +244,7 @@ export default function StaffPage() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="11" className="text-center text-danger">ບໍ່ມີການບິນທຶກຂໍ້ມູນ</td>
+                        <td colSpan="12" className="text-center text-danger">ບໍ່ມີການບິນທຶກຂໍ້ມູນ</td>
                       </tr>
                     )
                   }
@@ -251,27 +271,37 @@ export default function StaffPage() {
         </div>
 
         <Modal size='sm' show={showqr} onHide={() => setShowqr()}>
-          <Modal.Header closeButton>
-            <Modal.Title>{staffName}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className='text-center '>
-          <div ref={qrRef} className='p-2 bg-white'>
-            <QRCodeSVG
-              value={idcode}
-              size={'250'}
-              bgColor={"#ffffff"}
-              level={"L"}
-              includeMargin={false}
-              imageSettings={{
-                src: "assets/img/logo/logo.png",
-                height: 50,
-                width: 50,
-                excavate: true,
-              }}
-            />
-            <h5>{staffName}</h5>
+          <Modal.Body className='text-center p-0'>
+            <div ref={qrRef} class="padding-card">
+                <div class="font-card">
+                    <div class="top-card">
+                        <img src={staff.profile && staff.profile !=='null'? url+'porfile/'+staff.profile: 'assets/img/icon/user.webp'} />
+                    </div>
+                    <div class="bottom-card">
+                        <p>ຮ້ານຄຳ ນາງວຽງຄຳ</p>
+                        <div class="barcode mb-3">
+                           <QRCodeSVG
+                            value={idcode}
+                            size={'250'}
+                            bgColor={"#ffffff"}
+                            level={"L"}
+                            includeMargin={false}
+                            style={{ height: "auto", maxWidth: "40%", width: "40%" }}
+                            imageSettings={{
+                              src: "assets/img/logo/logo.png",
+                              excavate: true,
+                            }}
+                          />
+                        </div>
+                        <br />
+                        <p class="no p text-start ms-3"><i class="fa-solid fa-user" /> : {staff.first_name+' '+staff.last_name}</p>
+                        <p class="no p text-start ms-3"><i class="fa-solid fa-phone"/> : {staff.staff_tel}</p>
+                        <p class="no p text-start ms-3"><i class="fa-solid fa-envelope"/> : {staff.staff_email}</p>
+                    </div>
+                </div>
+           
             </div>
-              <span role='button' className='pt-3 text-red' onClick={downloadQrCode}><i class="fa-solid fa-download"></i> ດາວໂຫຼດQR</span>
+              <span role='button' className='p-3 text-red' onClick={downloadQrCode}><i class="fa-solid fa-download"></i> ດາວໂຫຼດQR</span>
           </Modal.Body>
         </Modal>
       </div>

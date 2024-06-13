@@ -64,7 +64,7 @@ export default function BillView() {
     }, [billId])
 
     return (
-        <div id="content"  class="app-content">
+        <div id="content" class="app-content">
             <div className="invoice">
                 <div className="invoice-company">
                     <span className="float-end hidden-print">
@@ -78,8 +78,8 @@ export default function BillView() {
                     </span>
                     ລາຍລະອຽດບິນ
                 </div>
-                <div id='printableArea'  ref={componentRef}>
-                    <div className="invoice-header px-3" >
+                <div id='printableArea' className='px-3' ref={componentRef}>
+                    <div className="invoice-header" >
                         <div className="invoice-from">
                             <address className="mt-5px mb-5px">
                                 <strong className="text-dark">ຮ້ານຂາຍຄຳ ນາງວຽງຄຳ.</strong>
@@ -113,7 +113,6 @@ export default function BillView() {
                                         <th>ລາຍການ</th>
                                         <th className="text-center"> ນ້ຳໜັກ</th>
                                         <th className="text-center"> ບັນຈຸ</th>
-                                        <th className="text-center"> ຊື້ເພີ່ມ</th>
                                         <th className="text-end"> ລາຄາຂາຍ </th>
                                         <th className="text-center" width="5%"> ຈຳນວນ</th>
                                         <th className="text-end"> ຄ່າລາຍ </th>
@@ -128,30 +127,29 @@ export default function BillView() {
                                             <td>{val.tile_name} ({val.code_id})</td>
                                             <td className='text-center'>{val.qty_baht + ' ' + val.option_name}</td>
                                             <td className='text-center'>{val.qty_grams} g</td>
-                                            <td className='text-center'>{val.qty_sale_add > 0? '+ '+ val.qty_sale_add + ' ' + val.option_name:'-'} </td>
                                             <td className='text-end'>{numeral(val.price_sale).format('0,00')}</td>
                                             <td className='text-center'>{val.order_qty + '.' + val.unite_name}</td>
                                             <td className={`text-end ${val.price_pattern > 0 ? 'text-green' : ''}`}>{val.price_pattern > 0 ? '+' : ''} {numeral(val.price_pattern * val.order_qty * val.qty_baht).format('0,00')}</td>
-                                            <td className='text-end'>{numeral(val.qty_sale_add >0? val.price_grams*val.qty_gram_add: val.price_sale*val.order_qty).format('0,0')} </td>
+                                            <td className='text-end'>{numeral((val.order_qty * val.price_sale) + (val.order_qty * val.price_pattern * val.qty_baht)).format('0,00')}</td>
                                             <td>{val.zone_name}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colSpan={8} className='text-end border-0'>ລວມຍອດທັງໝົດ</td>
+                                        <td colSpan={7} className='text-end border-0'>ລວມຍອດທັງໝົດ</td>
                                         <td colSpan={2} className='text-end bg-dark-200 text-white'> {numeral(data.balance_total).format('0,00')} Kip</td>
                                     </tr>
                                     <tr>
-                                        <td colSpan={8} className='text-end border-0'>ຮັບເງິນສົດ</td>
+                                        <td colSpan={7} className='text-end border-0'>ຮັບເງິນສົດ</td>
                                         <td colSpan={2} className='text-end bg-dark-200 text-white'> {numeral(data.balance_cash).format('0,00')} Kip</td>
                                     </tr>
                                     <tr>
-                                        <td colSpan={8} className='text-end border-0'>ຮັບເງິນໂອນ</td>
+                                        <td colSpan={7} className='text-end border-0'>ຮັບເງິນໂອນ</td>
                                         <td colSpan={2} className='text-end bg-dark-200 text-white'> {numeral(data.balance_transfer).format('0,00')} Kip</td>
                                     </tr>
                                     <tr>
-                                        <td colSpan={8} className='text-end border-0'>ຮັບເງິນທອນ</td>
+                                        <td colSpan={7} className='text-end border-0'>ຮັບເງິນທອນ</td>
                                         <td colSpan={2} className='text-end bg-dark-200 text-white'> {numeral(data.balance_return).format('0,00')} Kip</td>
                                     </tr>
                                 </tfoot>

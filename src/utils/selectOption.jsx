@@ -48,7 +48,6 @@ export function useProvince() {
 
 export function useOption() {
     const [itemOption, setItemOption] = useState([]);
-  
     useEffect(() => {
       const showOptiongold = async () => {
         try {
@@ -62,9 +61,27 @@ export function useOption() {
   
       showOptiongold();
     }, []); 
-  
     const data = itemOption.map(item => ({ label: item.option_name, value: item.option_id }));
+    return data;
+  }
+    export function useBranch() {
+      const [itemBranch, setItembranch] = useState([]);
+    
+      useEffect(() => {
+        const showOptiongold = async () => {
+          try {
+            const response = await fetch(api + 'system/');
+            const jsonData = await response.json();
+            setItembranch(jsonData);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+    
+        showOptiongold();
+      }, []); 
   
+    const data = itemBranch.map(item => ({ label: item.branch_name, value: item.branch_uuid }));
     return data;
   }
   

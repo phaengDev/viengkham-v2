@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useRef} from 'react'
 import { Link } from 'react-router-dom'
 import { DatePicker, SelectPicker, Input, InputGroup, Placeholder,Modal,Button } from 'rsuite';
 import { useStaff } from '../../utils/selectOption';
@@ -52,19 +52,17 @@ function ReportsaleDaily() {
     fetchDataReport();
   }
 
-  const [filter, setFilter] = useState('');
+  // const [filter, setFilter] = useState('');
   const Filter = (event) => {
-    setFilter(event)
     setItemData(filterName.filter(n => n.sale_billNo.toLowerCase().includes(event)))
   }
 
 const [detail,setDetail]=useState([]);
-const [billNo,setBillNo]=useState('')
-const [billId,setBillId]=useState('')
-
+const [billNo,setBillNo]=useState('');
+const [id, setId] = useState('');
 const handleView = async (id, Bill) => {
   setBillNo(Bill);
-  setBillId(id);
+  setId(id);
   try {
     const response = await axios.post(api + 'sale-r/veiw/'+id);
     const jsonData = response.data;
@@ -87,8 +85,6 @@ const exportToExcel = () => {
   const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
   saveAs(dataBlob, "ລາຍງານການຂາຍລວມ.xlsx");
 };
-
-
   useEffect(() => {
     fetchDataReport();
   }, [])
@@ -214,11 +210,12 @@ const exportToExcel = () => {
                           ):''}
                 </tfoot>
               </table>
-
             </div>
           </div>
         </div>
-
+       
+     {/* <Invoice ref={invoiceRef} invoice={invoice} /> */}
+    
         <Modal size={'lg'} open={open} onClose={()=>handleModal(false)}>
         <Modal.Header>
           <Modal.Title className='py-2'>ລາຍລະອຽດບິນ: {billNo}</Modal.Title>
@@ -232,6 +229,7 @@ const exportToExcel = () => {
                     <th className=''>ຊື່ສິນຄ້າ</th>
                     <th className='text-center'>ນ້ຳໜັກ</th>
                     <th className='text-center'>ກຣາມ</th>
+                    <th className='text-center'>ຊື້ເພີ່ມ</th>
                     <th className='text-center'>ຈຳນວນ</th>
                     <th className='text-end'>ຄ່າລາຍ</th>
                     <th className='text-end'>ລວມເງິນ</th>
@@ -247,9 +245,10 @@ const exportToExcel = () => {
                   <td>{item.tile_name}</td>
                   <td  className='text-center'>{item.qty_baht+' '+item.option_name}</td>
                   <td  className='text-center'>{item.qty_grams} g</td>
+                  <td  className='text-center'>{item.qty_sale_add >0?(<span className='text-green'>+ {item.qty_sale_add}</span>):'-' } </td>
                   <td  className='text-center'>{item.order_qty+'/'+item.unite_name}</td>
                   <td  className='text-end'>{numeral(item.order_qty*item.price_pattern).format('0,00')}</td>
-                  <td className='text-end'>{numeral((item.order_qty*item.price_sale)+(item.order_qty*item.price_pattern)).format('0,00')}</td>
+                  <td className='text-end'>{numeral((item.total_balance)).format('0,00')}</td>
                   <td>{item.zone_name}</td>
                   <td>{item.staff_name}</td>
                 </tr>
@@ -258,18 +257,18 @@ const exportToExcel = () => {
                 </tbody>
                 <tfoot>
                 <tr className='border-bottom-0'>
-                <td colSpan={6} className='text-end border'>ລວມຍອດທັງໝົດ</td>
+                <td colSpan={7} className='text-end border'>ລວມຍອດທັງໝົດ</td>
                 <td className='text-end bg-black border text-white'>{numeral(detail.reduce((acc, val) => acc + parseFloat(val.order_qty*val.price_pattern*val.qty_baht), 0)).format('0,00')}</td>
-                <td className='text-end bg-black border text-white'>{numeral(detail.reduce((acc, val) => acc + parseFloat((val.order_qty*val.price_sale)+(val.order_qty*val.price_pattern*val.qty_baht)), 0)).format('0,00')}</td>
+                <td className='text-end bg-black border text-white'>{numeral(detail.reduce((acc, val) => acc + parseFloat(val.total_balance), 0)).format('0,00')}</td>
                 <td colSpan={2} className='border-0'></td>
               </tr>
                 </tfoot>
                 </table>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={()=>handleModal(false)} appearance="primary">
+          {/* <Button onClick={handlePrint} appearance="primary">
           ພີມບິນ
-          </Button>
+          </Button> */}
           <Button onClick={()=>handleModal(false)} appearance="primary" color='red'>
           ອອກ
           </Button>

@@ -133,8 +133,9 @@ export default function ReportSaleList() {
                       <th className=''>ຊື່ສິນຄ້າ</th>
                       <th className='text-center'>ນ້ຳໜັກ</th>
                       <th className='text-center'>ບັນຈຸ</th>
-                      <th className='text-end'>ລາຄາຂາຍ</th>
+                      <th className='text-center'>ຊື້ເພີ່ມ</th>
                       <th className='text-center'>ຈຳນວນ</th>
+                      <th className='text-end'>ລາຄາຂາຍ</th>
                       <th className='text-end'>ຄ່າລາຍ</th>
                       <th className='text-end'>ລວມເງິນ</th>
                       <th className=''>ໂຊນຂາຍ</th>
@@ -155,11 +156,13 @@ export default function ReportSaleList() {
                                 <td className='text-center'>{val.code_id}</td>
                                 <td>{val.tile_name}</td>
                                 <td className='text-center'>{val.qty_baht+' '+val.option_name}</td>
-                                <td className='text-center'>{val.qty_grams} g</td>
-                                <td className='text-end'>{numeral(val.price_sale).format('0,00')}</td>
-                                <td className='text-center'>{val.order_qty+'.'+val.unite_name}</td>
-                                <td className={`text-end ${val.price_pattern > 0 ?'text-green':''}`}>{val.price_pattern > 0 ?'+':''} {numeral(val.price_pattern*val.order_qty*val.qty_baht).format('0,00')}</td>
-                                <td className='text-end'>{numeral((val.order_qty*val.price_sale)+(val.order_qty*val.price_pattern*val.qty_baht)).format('0,00')}</td>
+                                <td className='text-center'>{val.qty_grams}/ g</td>
+                              <td> {val.qty_sale_add >0 ?(<span className='text-green'>{val.qty_sale_add+' '+val.option_name}</span>):'-'}</td>
+                              <td className='text-center'>{val.order_qty+'.'+val.unite_name}</td>
+                                <td className='text-end'>{numeral(val.qty_sale_add > 0 ? val.price_grams*val.qty_gram_add: val.price_sale*val.order_qty).format('0,00')}</td>
+
+                                <td className={`text-end ${val.price_pattern > 0 ?'text-green':''}`}>{val.price_pattern > 0 ?'+':''} {numeral(val.price_pattern*val.qty_baht).format('0,00')}</td>
+                                <td className='text-end'>{numeral((val.total_balance)).format('0,00')}</td>
                                 <td>{val.zone_name}</td>
                                 <td>{val.staff_name}</td>
                               </tr>
@@ -174,9 +177,10 @@ export default function ReportSaleList() {
                   </tbody>
                   <tfoot>
                     { itemData.length > 0 ? (
-                      <tr> <td colSpan={8} className='text-end'>ລວມຍອດທັງໝົດ</td>
+                      <tr> <td colSpan={9} className='text-end'>ລວມຍອດທັງໝົດ</td>
                               <td className='text-end bg-green text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat(val.price_pattern*val.order_qty*val.qty_baht), 0)).format('0,00')}</td>
-                            <td className='text-end bg-dark text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat((val.order_qty*val.price_sale)+(val.order_qty*val.price_pattern*val.qty_baht)), 0)).format('0,00')}</td>
+                            <td className='text-end bg-dark text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat((val.total_balance)), 0)).format('0,00')}</td>
+                            {/* <td className='text-end bg-dark text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat((val.order_qty*val.price_sale)+(val.order_qty*val.price_pattern*val.qty_baht)), 0)).format('0,00')}</td> */}
                             <td colSpan={2}></td>
                             </tr>
                     ):('')}

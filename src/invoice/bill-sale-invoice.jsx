@@ -1,31 +1,43 @@
 
 import React,{ useEffect, useState,useRef } from 'react';
 import  '../invoice.css';
+import { useLocation } from 'react-router-dom';
 import { Config } from '../config/connect';
 import moment from 'moment';
 import numeral from 'numeral';
+import { useReactToPrint } from 'react-to-print';
+    const InvoiceSale=()=> {
+        const location = useLocation();
+        const searchParams = new URLSearchParams(location.search);
+        const billId = searchParams.get('id');
 const  api=Config.urlApi;
-const Invoice = ({ invoice }) => {
-    const [data, setData] = useState({ dataList: [] });
-   const fetchData = async () => {
+const [data, setData] = useState({ dataList: [] });
+const fetchData = async () => {
     try {
-        const response = await fetch(api + 'sale-r/reques/'+invoice);
-        const jsonData = await response.json();
-        setData(jsonData);
-        
+      const response = await fetch(api + 'sale-r/reques/' + billId);
+      const jsonData = await response.json();
+      setData(jsonData);
     } catch (error) {
-        console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error);
     }
-}
+  };
 
+const invoiceRef = useRef();
+const printInvioce = useReactToPrint({
+    content: () => invoiceRef.current,
+  });
 useEffect(() => {
-   
+    
     fetchData();
-}, []);
+      printInvioce()
+  }, [billId]);
+  if (!billId) {
+    return '';
+  }
 return (
   <>
   
-  <div class="receipt" >
+  <div ref={invoiceRef}  class="receipt" >
         <header>
             <div id="logo" className="media w-50" data-src="6840541.png" src="6840541.png"> <img src="/assets/img/logo/logo.png" className='w-50' alt=""/></div>
         </header>
@@ -113,6 +125,7 @@ return (
         </section>
     </div>
     </>
-)};
+)
+}
+export default InvoiceSale;
 
-export default Invoice;

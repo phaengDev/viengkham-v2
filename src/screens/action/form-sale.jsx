@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+// import { Link, useNavigate } from 'react-router-dom'
 import Modal from 'react-bootstrap/Modal';
-import { Input, Message, useToaster, InputGroup } from 'rsuite';
+import { Input, Message, useToaster, InputGroup,InputNumber } from 'rsuite';
 import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
 import Alert from '../../utils/config';
@@ -12,7 +12,7 @@ function FormSale() {
 
   const api = Config.urlApi;
   const img = Urlimage.url;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   // const headleBack = () => {
   //   navigate(`/home`);
   // }
@@ -79,7 +79,7 @@ function FormSale() {
       });
   }
 
-  const [check, setCheck] = useState(true);
+  const [check, setCheck] = useState(false);
   const openSearch = (index) => {
     setCheck(index);
   }
@@ -170,55 +170,60 @@ function FormSale() {
       });
   }
 
-  const [dataps,setDataps]=useState({})
+  const [dataps, setDataps] = useState({})
 
   const addOrderCart = (item) => {
     modalView(true)
     setDataps(item);
     setValues({
-      type_id_fk:'',
-    title_id_fk:item.tiles_id_fk,
-    option_id_fk:item.option_id_fk,
+      type_id_fk: '',
+      title_id_fk: item.tiles_id_fk,
+      option_id_fk: item.option_id_fk,
     });
-
+    setIsVisible(false);
+    setBuyadd(0)
   }
-  const [values,setValues]=useState({
-    type_id_fk:'',
-    title_id_fk:'',
-    option_id_fk:'',
-})
-const [itemPattern,setItemPattern]=useState([])
-  const fetchData = async ()=>{
+  const [values, setValues] = useState({
+    type_id_fk: '',
+    title_id_fk: '',
+    option_id_fk: '',
+  })
+  const [itemPattern, setItemPattern] = useState([])
+  const fetchData = async () => {
     try {
-        const response = await axios.post(api + 'pattern/', values);
-        const jsonData = response.data;
-        setItemPattern(jsonData);
+      const response = await axios.post(api + 'pattern/', values);
+      const jsonData = response.data;
+      setItemPattern(jsonData);
     } catch (error) {
-        console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error);
     }
   }
 
 
-  const [pattern,setPattern]=useState(0);
-//  const addPattern=(price)=>{
-//   setPattern(price)
-//  }
+  const [pattern, setPattern] = useState(0);
+  //  const addPattern=(price)=>{
+  //   setPattern(price)
+  //  }
 
-
-const [orderQty,setOrderQty]=useState('1');
-const confirmOrder=()=>{
-  const dataOrder={
-    product_id_fk: dataps.product_uuid,
-    zone_id_fk: dataps.zone_id_fk,
-    price_buy:dataps.price_buy,
-    price_sale:dataps.price_sale,
-    qty_grams:dataps.grams,
-    patternPrice:pattern,
-    order_qty:orderQty,
-    staff_id_fk: data.staff_uuid,
-    user_id_fk: userId
-  };
-    // console.log(dataOrder)
+const [buyadd,setBuyadd]=useState(0)
+  const [orderQty, setOrderQty] = useState('1');
+  const confirmOrder = () => {
+    const buyAddValue = buyadd > 0 ? (buyadd*dataps.kilogram) : 0;
+    const dataOrder = {
+      product_id_fk: dataps.product_uuid,
+      zone_id_fk: dataps.zone_id_fk,
+      price_buy: dataps.price_buy,
+      price_sale: dataps.price_sale,
+      qty_grams: dataps.grams,
+      patternPrice: pattern,
+      order_qty: orderQty,
+      buy_add: buyAddValue,
+      qty_add:buyadd,
+      staff_id_fk: data.staff_uuid,
+      user_id_fk: userId
+    };
+    // console.log(dataOrder);
+    // return
     if (dataps.quantity <= 0) {
       return showMessage('ສິນຄ້າໝົດແລ້ວ ກະລຸນາເລືອກໂຊນອື່ນ', 'error');
     }
@@ -229,7 +234,9 @@ const confirmOrder=()=>{
             showMessage(res.data.message, 'success');
             fetchItemCart();
             modalView(false);
-            setPattern(0)
+            setPattern(0);
+            setIsVisible(false);
+            setOrderQty('1')
           } else {
             showMessage(res.data.message, 'error');
           }
@@ -239,14 +246,14 @@ const confirmOrder=()=>{
     } else {
       setShow(true);
     }
-}
- 
+  }
 
-//========= off add order ============ \\
+
+  //========= off add order ============ \\
   const [itemcart, setItemCart] = useState([]);
   const [totalBalance, setTotalBalance] = useState(0);
-  const [totalPattern,setTotalPattern]=useState(0);
-  const [balanceTotal,setBalanceTotal]=useState(0)
+  const [totalPattern, setTotalPattern] = useState(0);
+  const [balanceTotal, setBalanceTotal] = useState(0)
   const fetchItemCart = async () => {
     try {
       const response = await axios.get(api + 'order/itemcart/' + data.staff_uuid);
@@ -258,17 +265,23 @@ const confirmOrder=()=>{
         zone_id_fk: item.zone_id_fk,
         order_qty: item.order_qty,
         qty_grams: (item.qty_grams * item.order_qty),
+        qty_add:item.qty_add,
+        grams_add:item.grams_add,
         price_sale: item.price_sale,
         price_buy: item.price_buy,
-        price_pattern:item.price_pattern,
+        price_pattern: item.price_pattern,
         staff_id_fk: item.staff_id_fk,
         user_id_fk: item.user_id_fk
       }));
-      const balance = jsonData.reduce((acc, val) => acc + parseFloat(val.price_sale * (val.qty_grams * val.order_qty)), 0);
-      const bnPattern = jsonData.reduce((acc, val) => acc + parseFloat(val.price_pattern * val.order_qty*val.qty_baht), 0);
+      // const balance = jsonData.reduce((acc, val) => acc + parseFloat(val.price_sale * (val.qty_add > 0 ? val.qty_grams: val.qty_grams * val.order_qty)), 0);
+      const balance = jsonData.reduce((acc, val) => {
+        const quantity = val.qty_add > 0 ? val.grams_add : val.qty_grams * val.order_qty;
+        return acc + parseFloat(val.price_sale * quantity);
+      }, 0);
+      const bnPattern = jsonData.reduce((acc, val) => acc + parseFloat(val.price_pattern * val.order_qty * val.qty_baht), 0);
       setTotalBalance(balance);
       setTotalPattern(bnPattern);
-      setBalanceTotal(balance+bnPattern);
+      setBalanceTotal(balance + bnPattern);
       setOrder(prevOrder => ({
         ...prevOrder,
         staff_id_fk: staffId,
@@ -291,7 +304,7 @@ const confirmOrder=()=>{
     staff_id_fk: staffId,
     branch_id_fk: barnchId,
     customId: '',
-    bill_shop:'',
+    bill_shop: '',
     cus_fname: '',
     cus_lname: '',
     cus_tel: '',
@@ -350,7 +363,7 @@ const confirmOrder=()=>{
             sale_remark: '',
           });
           setOrder({
-            bill_shop:'',
+            bill_shop: '',
             alance_total: '0',
             total_grams: '0',
             balance_cash: '0',
@@ -438,19 +451,19 @@ const confirmOrder=()=>{
     setActiveShow('')
   }
 
-const printBill =()=>{
+  const printBill = () => {
 
-  const printContent = document.getElementById('printableArea').innerHTML;
+    const printContent = document.getElementById('printableArea').innerHTML;
     const originalContent = document.body.innerHTML;
     const afterPrint = () => {
-        document.body.innerHTML = originalContent;
-        window.removeEventListener('afterprint', afterPrint);
-        window.location.reload();
+      document.body.innerHTML = originalContent;
+      window.removeEventListener('afterprint', afterPrint);
+      window.location.reload();
     };
     window.addEventListener('afterprint', afterPrint);
     document.body.innerHTML = printContent;
     window.print();
-}
+  }
   const handlePrint = () => {
     Swal.fire({
       title: "ການດຳເນິນງານສຳເລັດ",
@@ -460,19 +473,19 @@ const printBill =()=>{
       cancelButtonText: "ປິດອອກ",
       reverseButtons: true,
       width: 400,
-      height:200,
+      height: 200,
       confirmButtonColor: "#0fac29",
       cancelButtonColor: "#ff5b57"
     }).then((result) => {
       if (result.isConfirmed) {
         printBill()
         // handleModal(true)
-      }else{
+      } else {
         setInvoice(null)
         handleModal(true)
       }
     });
-};
+  };
 
 
   // ===================== \\
@@ -494,6 +507,15 @@ const printBill =()=>{
   const modalView = (index) => {
     setShowView(index)
   }
+
+
+
+
+  const [isVisible, setIsVisible] = useState(false);
+  const handleToggle = () => {
+    setIsVisible(!isVisible);
+    setBuyadd(0)
+  };
   //======================
   useEffect(() => {
 
@@ -525,7 +547,7 @@ const printBill =()=>{
       document.removeEventListener("keypress", handleKeyPress);
     };
 
-  }, [datasearch, userId, barnchId, data, staffId, balancePayment, totalBalance, balanceCash, checkOnly,values])
+  }, [datasearch, userId, barnchId, data, staffId, balancePayment, totalBalance, balanceCash, checkOnly, values])
   return (
     <>
       <div id="app" className="app app-content-full-height app-without-sidebar app-without-header">
@@ -533,16 +555,13 @@ const printBill =()=>{
           <div className="pos pos-with-menu pos-with-sidebar" id="pos">
             <div className="pos-menu">
               <div className="logo text-center">
-                <Link to={'/home'} >
+                <a href='home' >
                   <div className="logo-img ">
                     <img src="/assets/img/logo/logo.png" className="w-60" alt="" />
                   </div>
                   <div className="logo-text">ຮ້ານຄຳ ວຽງຄຳ</div>
-                </Link>
+                </a>
               </div>
-
-
-
               <div className="nav-container">
                 <div data-scrollbar="true" data-height="100%" data-skip-mobile="true">
                   <ul className="nav nav-tabs">
@@ -645,21 +664,21 @@ const printBill =()=>{
                     {
                       itemcart.length > 0 ? (
                         itemcart.map((val, index) =>
-                          <div className="row pos-table-row py-2">
+                          <div key={index} className="row pos-table-row py-2">
                             <div className="col-9">
                               <div className="pos-product-thumb">
                                 <div className="img"
                                   style={{ backgroundImage: `url('${val.file_image !== '' ? img + 'pos/' + val.file_image : images}')` }} />
                                 <div className="info">
-                                  <div className="title">{val.tile_name} ( {val.qty_baht + ' ' + val.option_name} )</div>
-                                 {val.price_pattern > 0?(
-                                   <div className='desc text-green'>+{numeral((val.price_pattern*val.order_qty)*val.qty_baht).format('0,00')}</div>
-                                 ):('')}
-                                 
+                                  <div className="title">{val.tile_name} ( { val.qty_baht} {val.option_name}) { val.qty_add > 0 ?(<span className='text-green'>+ {val.qty_add} </span>):''}</div>
+                                  {val.price_pattern > 0 ? (
+                                    <div className='desc text-green'>+{numeral((val.price_pattern * val.order_qty) * val.qty_baht).format('0,00')}</div>
+                                  ) : ('')}
+
                                   <div className="single-price">ໂຊນ: <span className=' text-primary'> {val.zone_name}</span></div>
                                   <div className="input-group qty">
                                     <div className="input-group-append">
-                                      <span role='button' onClick={() => heandleMinus(val.cart_id)} className="btn btn-danger">
+                                      <span role='button' onClick={() => heandleMinus(val.cart_id)} className={`btn btn-danger ${val.qty_add > 0 ? 'disabled':''}`}>
                                         <i className="fa fa-minus" />
                                       </span>
                                     </div>
@@ -669,7 +688,7 @@ const printBill =()=>{
                                       value={val.order_qty}
                                     />
                                     <div className="input-group-prepend">
-                                      <span role='button' onClick={() => heandlePlus(val.cart_id)} className="btn btn-success">
+                                      <span role='button' onClick={() => heandlePlus(val.cart_id)} className={`btn btn-success ${val.qty_add > 0 ? 'disabled':''}`}>
                                         <i className="fa fa-plus" />
                                       </span>
                                     </div>
@@ -684,7 +703,14 @@ const printBill =()=>{
                                   <i className="fa-solid fa-trash"></i>
                                 </span>
                               </div>
-                              <div>{numeral(((val.price_sale * val.qty_grams) * val.order_qty)+((val.price_pattern*val.order_qty)*val.qty_baht)).format('0,00')}</div>
+                              <div>
+                                { val.grams_add > 1 ? (<s> {numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')}99</s> ):(
+                                 numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')
+                                )}
+                                <div> { val.grams_add > 0 ? (
+                                  numeral(((val.price_sale * val.grams_add) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')
+                                ):''}</div>
+                                </div>
                             </div>
                           </div>
                         )
@@ -718,7 +744,7 @@ const printBill =()=>{
                   <hr className="opacity-1 my-10px" />
                   <div className="d-flex align-items-center mb-2">
                     <div>ລວມທັງໝົດ</div>
-                    <div className="flex-1 text-end h4 mb-0 text-gold fw-bold">{numeral(totalBalance+totalPattern).format('0,00')}</div>
+                    <div className="flex-1 text-end h4 mb-0 text-gold fw-bold">{numeral(totalBalance + totalPattern).format('0,00')}</div>
                   </div>
                   <div className="d-flex align-items-center mt-3">
                     <button type='button' onClick={() => handleModal(true)} className="btn btn-danger rounded-3 text-center me-10px w-70px"  >
@@ -747,7 +773,7 @@ const printBill =()=>{
         </div>
       </div>
 
-
+      
       {print && (
         <div id="printableArea">
           <Invoice invoice={invoice} />
@@ -767,7 +793,7 @@ const printBill =()=>{
                   <input type="text" ref={inputRef} autoFocus onChange={(e) => headleCheng('userSale_id', e.target.value)} className='form-control form-control-lg fs-18px border-blue text-center my-input' placeholder='|||||||||||||||||||||||||||||||||' required />
                 </div>
               </form>
-              <p className='text-center mb-2'><a href='home'  className='text-h-red'><i className="fa-solid fa-hand-point-left"></i>  ຍ້ອນກັບ</a></p>
+              <p className='text-center mb-2'><a href='home' className='text-h-red'><i className="fa-solid fa-hand-point-left"></i>  ຍ້ອນກັບ</a></p>
               {error === true && (
                 <div className="alert alert-warning alert-dismissible fade show mb-0">
                   <i className="fa-solid fa-circle-exclamation fa-xl"></i> ລະຫັດພະນັກງານບໍ່ຖຶກຕ້ອງ
@@ -798,18 +824,15 @@ const printBill =()=>{
                           <InputGroup.Button onClick={handleSearchCust}>
                             <i className="fas fa-search"></i>
                           </InputGroup.Button>
-                        )
-                        }
+                        )}
                       </InputGroup>
                       <ul className={`dropdown-menu dropdown-menu-end ${activeShow}`}>
-
                         {
                           itemCust.length > 0 ? (
                             itemCust.map((role, key) => (
                               <li role='button' key={key} onClick={() => handleUsecust(role)} className='dropdown-item text-h-red'><i className="fa-solid fa-phone"></i> : {role.cus_tel} / {role.cus_fname + ' ' + role.cus_lname}</li>
                             ))
                           ) : ('')}
-
                       </ul>
                     </div>
                   </div>
@@ -838,25 +861,27 @@ const printBill =()=>{
                 <hr />
                 <div className="option-list mb-2">
                   <table className='table text-nowrap'>
-                    <body >
-
+                    <body>
                       {itemcart.map((val, index) =>
                         <tr>
                           <td className='text-center' width={'2%'}>{index + 1} </td>
                           <td width={'3%'} className='with-img dt-type-numeric'>
                             <img src={val.file_image !== '' ? img + 'pos/' + val.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' alt="" />
                           </td>
-                          <td>{val.tile_name + ' ' + val.qty_baht + '  ' + val.option_name}</td>
+                          <td>{val.tile_name + ' ' + val.qty_baht + '  ' + val.option_name} {val.qty_add >0 ?(<span className='text-green'>+ {val.qty_add}</span>):('')}</td>
                           <td>{val.order_qty + ' / ' + val.unite_name}</td>
                           <td className='text-end'>{(val.qty_baht * val.qty_grams)} g</td>
-                          <td className='text-end'>+ {numeral(val.price_pattern * val.order_qty*val.qty_baht).format('0,00')}</td>
-                          <td className='text-end'>{numeral(((val.price_sale * val.qty_grams) * val.order_qty)+val.price_pattern * val.order_qty*val.qty_baht).format('0,00')}</td>
+                          <td className='text-end'>+ {numeral(val.price_pattern * val.order_qty * val.qty_baht).format('0,00')}</td>
+                          <td className='text-end'> {numeral(
+                (val.price_sale * (val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty) + 
+                (val.price_pattern * val.order_qty * val.qty_baht)
+              ).format('0,00')}</td>
                         </tr>
                       )}
-                      <tr className='fs-18px'>
+                      <tr className='fs-16px'>
                         <td colSpan={4} className='text-end'>ລວມຍອດທັງໝົດ :</td>
-                        <td className='text-end text-danger'>{itemcart.reduce((acc, val) => acc + parseFloat(val.qty_grams * val.order_qty), 0)} g</td>
-                        <td colSpan={2} className='text-end text-gold bg-black'>{numeral(totalBalance+totalPattern).format('0,00')}</td>
+                        <td className='text-end text-danger'>{itemcart.reduce((acc, val) => acc + parseFloat((val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty), 0)} g</td>
+                        <td colSpan={2} className='text-end text-gold bg-black'>{numeral(totalBalance + totalPattern).format('0,00')}</td>
                       </tr>
                     </body>
                   </table>
@@ -877,7 +902,7 @@ const printBill =()=>{
                   </div>
                   <div className="col-sm-4 mb-2 text-center">
                     <label htmlFor="" className='form-label'>ບິນຮ້ານ</label>
-                    <Input size='lg' onChange={(e) => handleChange('bill_shop', e)} placeholder='0x-xxxx' className='bg-dark text-center text-white'  />
+                    <Input size='lg' onChange={(e) => handleChange('bill_shop', e)} placeholder='0x-xxxx' className='bg-dark text-center text-white' />
                   </div>
                   <div className="col-sm-12">
                     <label htmlFor="" className='form-label'>ໝາຍເຫດ</label>
@@ -918,42 +943,48 @@ const printBill =()=>{
               />
             </div>
             <div class="modal-pos-product-info">
-              <div class="fs-4 fw-bold">{dataps.tile_name +' '+ dataps.qty_baht +' '+ dataps.option_name} ( {dataps.code_id} )</div>
+              <div class="fs-4 fw-bold">{dataps.tile_name + ' ' + dataps.qty_baht + ' ' + dataps.option_name} ( {dataps.code_id} )</div>
               <div class="fs-6 text-body text-opacity-50 mb-2">
-               {dataps.zone_name} / ນ້ຳໜັກ: {dataps.grams} ກຣາມ
+                {dataps.zone_name} / ນ້ຳໜັກ: {dataps.grams} ກຣາມ
               </div>
-              <div class="fs-3 fw-bolder mb-3">{numeral(dataps.grams*dataps.price_sale).format('0,00')} ກີບ</div>
+              <div class="fs-3 fw-bolder mb-3">{numeral(dataps.grams * dataps.price_sale).format('0,00')} ກີບ</div>
               <div class="option-row">
-              <div class="d-flex mb-3">
-          <button type='button' onClick={() => setOrderQty(prevQty => Math.max(parseInt(prevQty) - 1, 1))}  class="btn btn-danger btn-sm d-flex align-items-center"><i class="fa fa-minus"></i></button>
-          <input type="text" class="form-control w-40px fw-bold fs-5 px-0 mx-2 text-center border-0" name="qty"  value={orderQty > 0 ? orderQty : '1'} 
-          onChange={(e) => setOrderQty(Math.max(parseInt(e.target.value), 1))} />
-          <button type='button' onClick={() => setOrderQty(prevQty => parseInt(prevQty) + 1)} class="btn btn-green btn-sm d-flex align-items-center"><i class="fa fa-plus"></i></button>
-        </div>
+                <div class="d-flex mb-3">
+                  <button type='button' onClick={() => setOrderQty(prevQty => Math.max(parseInt(prevQty) - 1, 1))} class="btn btn-danger btn-sm d-flex align-items-center"><i class="fa fa-minus"></i></button>
+                  <input type="text" class="form-control w-40px fw-bold  px-0 mx-2 text-center border-0" name="qty" value={orderQty > 0 ? orderQty : '1'}
+                    onChange={(e) => setOrderQty(Math.max(parseInt(e.target.value), 1))} />
+                  <button type='button' onClick={() => setOrderQty(prevQty => parseInt(prevQty) + 1)} class="btn btn-green btn-sm d-flex align-items-center"><i class="fa fa-plus"></i></button>
+                  <button type='button' onClick={handleToggle} class="btn btn-default btn-sm d-flex align-items-center ms-3 me-2"> {isVisible ===true ? (<i class="fa-solid fa-minus text-red" /> ):(  <i class="fa-solid fa-ellipsis-vertical" />)} </button>
+                  {isVisible && <InputGroup inside size="sm" style={{width:'160px'}} >
+                    <InputGroup.Addon>ຊື້ເພີ່ມ</InputGroup.Addon>
+                    <InputNumber size="sm" onChange={(e)=>setBuyadd(e)} defaultValue="0"  />
+                  </InputGroup>}
+                </div>
+                
               </div>
               <hr />
               <div class="mb-3">
                 <div class="fw-bold fs-6">ລາຍ</div>
                 <div class="option-list">
                   <div class="option " >
-                    <input type="radio" id="size" name="size[]" onChange={()=>setPattern('0')} class="option-input"  />
+                    <input type="radio" id="size" name="size[]" onChange={() => setPattern('0')} class="option-input" />
                     <label class="option-label bg-black-100" for="size" role='button'>
                       <span class="option-text">ບໍ່ມີຄ່າລາຍ</span>
                       <span class="option-price">+0.00</span>
                     </label>
                   </div>
                   {itemPattern.map((item, key) => (
-                  <div key={key} class="option" role='button'>
-                    <input type="radio" id={`size${key+1}`} name='size[]' onChange={()=>setPattern(item.pattern_pirce)} class="option-input" />
-                    <label class="option-label" for={`size${key+1}`} role='button'>
-                      <span class="option-text">{item.pattern_name}</span>
-                      <span class="option-price">+{numeral(item.pattern_pirce).format('0,00') }</span>
-                    </label>
-                  </div>
+                    <div key={key} class="option" role='button'>
+                      <input type="radio" id={`size${key + 1}`} name='size[]' onChange={() => setPattern(item.pattern_pirce)} class="option-input" />
+                      <label class="option-label" for={`size${key + 1}`} role='button'>
+                        <span class="option-text">{item.pattern_name}</span>
+                        <span class="option-price">+{numeral(item.pattern_pirce).format('0,00')}</span>
+                      </label>
+                    </div>
                   ))}
                 </div>
               </div>
-              
+
               <hr />
               <div class="row gx-3">
                 <div class="col-4">

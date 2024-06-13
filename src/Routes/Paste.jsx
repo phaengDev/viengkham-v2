@@ -26,7 +26,7 @@ import SystemPage from '../screens/setting/systemPage';
 import SetPirceSale from '../screens/setting/setPirce-sale';
 import HistorySetPrice from '../screens/setting/history-setPrice';
 import ReportReceived from '../screens/reports/report-received';
-import Invoice from '../invoice/bill-invoice';
+import InvoiceSale from '../invoice/bill-sale-invoice';
 import BillView from '../screens/action/bill-view';
 import { Routes, Route, Navigate } from 'react-router-dom';
 export default function AppContent() {
@@ -61,7 +61,7 @@ export default function AppContent() {
             <Route path='/price' element={<SetPirceSale />}/> 
             <Route path='/h-price' element={<HistorySetPrice />}/> 
             <Route path='/r-import' element={<ReportReceived />}/> 
-            <Route path='/p-bill' element={<Invoice />}/> 
+            <Route path='/p-bill' element={<InvoiceSale />}/> 
             <Route path='/bill' element={<BillView />}/> 
             
         </Routes>
