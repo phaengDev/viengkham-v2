@@ -349,7 +349,7 @@ const [role,setRole]=useState({
                     <>
                       <div className='text-center'>
                         <img src="./assets/img/icon/error.png" className='w-25' alt="" />
-                        <h5 className='mt-4 text-orange'>ບໍ່ພົບຂໍ້ມູນ ເລີກບິນທີ່ທ່ານກຳລັງຊອກຫາ</h5>
+                        <h5 className='mt-4 text-orange'>ບໍ່ພົບເລກບິນທີ່ທ່ານກຳລັງຊອກຫາ</h5>
                       </div></>
                   ) : (
                     <>
@@ -368,7 +368,7 @@ const [role,setRole]=useState({
                           <td colSpan={3} className='border-0'>ບ້ານ ຫາດສະດິ, ເມືອງຈັດທະບູລີ,ນະຄອນຫຼວງວຽງຈັນ</td>
                         </tr>
                         <tr>
-                          <td colSpan={3} className='border-0'>ໂທລະສັບ: 2052160011  -{qty}</td>
+                          <td colSpan={3} className='border-0'>ໂທລະສັບ: 20 95 555 609  -{qty}</td>
                         </tr>
                         <tr>
                           <td className='border-0' width={'50%'} colSpan={2}>

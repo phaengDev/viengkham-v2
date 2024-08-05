@@ -28,6 +28,13 @@ import HistorySetPrice from '../screens/setting/history-setPrice';
 import ReportReceived from '../screens/reports/report-received';
 import InvoiceSale from '../invoice/bill-sale-invoice';
 import BillView from '../screens/action/bill-view';
+import NewEvent from '../website/newEvent';
+import SliderPage from '../website/sliderPage';
+import PromotionPage from '../website/promotionPage';
+import GiftMenory from '../website/gift-memory';
+import RateChange from '../screens/setting/rateChange';
+import StockPages from '../screens/action/stockPages';
+import ApplyForJob from '../website/apply-for-job';
 import { Routes, Route, Navigate } from 'react-router-dom';
 export default function AppContent() {
  
@@ -63,7 +70,13 @@ export default function AppContent() {
             <Route path='/r-import' element={<ReportReceived />}/> 
             <Route path='/p-bill' element={<InvoiceSale />}/> 
             <Route path='/bill' element={<BillView />}/> 
-            
+            <Route path='/event' element={<NewEvent />}/> 
+            <Route path='/slider' element={<SliderPage />}/> 
+            <Route path='/promotion' element={<PromotionPage />}/> 
+            <Route path='/gift' element={<GiftMenory />}/> 
+            <Route path='/rate' element={<RateChange />}/>
+            <Route path='/apply-job' element={<ApplyForJob />}/> 
+            <Route path='/stock-all' element={<StockPages/>}/>
         </Routes>
   )
 }

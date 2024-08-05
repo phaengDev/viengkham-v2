@@ -312,10 +312,10 @@ const handleUpload = () => {
                              <div class="navbar navbar-sticky  d-xl-block my-n4 py-4 h-100 ">
                             <form onSubmit={handleSubmit} className='nav'>
                                 <div className="panel panel-inverse border-4 border-bottom rounded-4 border-red ">
-                                    <div className="panel-heading">
+                                    <div className="panel-heading bg-vk">
                                         <h4 className="panel-title fs-14px">{formup === true ? 'ຟອມແກ້ໄຂສິນຄ້ານຳເຂົ້າ' : 'ຟອມສິນຄ້ານຳເຂົ້າ'}</h4>
-                                        <div className="panel-heading-btn">
-                                            <a href="javascript:;" onClick={() => headleNewform(false)} className="btn btn-xs btn-icon btn-danger" ><i className="fa fa-times"></i></a>
+                                        <div className="panel-heading-btn ">
+                                            <a href="javascript:;" onClick={() => headleNewform(false)} className="btn btn-sm btn-icon btn-warning" ><i className="fa fa-times fs-4"></i></a>
                                         </div>
                                     </div>
                                     <div className="panel-body ">
@@ -348,7 +348,7 @@ const handleUpload = () => {
                                         </div>
                                         <hr className='border-blue' />
                                         <div className="form-group row mt-3 mb-4">
-                                            <div className="col-6"> <button type='rest' className='btn btn-danger w-100 fs-14px'><i className="fa-solid fa-rotate fs-lg"></i> ເລີມໃໝ່</button></div>
+                                            <div className="col-6"> <button type='reset' onClick={setInputs} className='btn btn-danger w-100 fs-14px'><i className="fa-solid fa-rotate fs-lg"></i> ເລີມໃໝ່</button></div>
                                             <div className="col-6">  <button type='submit' className='btn btn-primary  w-100 fs-14px'>{formup === true ? (<>
                                                 <i className="fa-solid fa-pen-to-square"></i> ແກ້ໄຂ້</>) : (<><i className="fa-solid fa-download fs-lg"></i> ບັນທຶກ</>)}</button></div>
                                         </div>

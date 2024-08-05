@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import {SelectPicker, Placeholder } from 'rsuite';
+import { SelectPicker, Placeholder } from 'rsuite';
 import { useOption, useTile, useZone } from '../../utils/selectOption';
 import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
@@ -17,7 +17,7 @@ function StockSales() {
         navigate('/received')
     }
     const [datasearch, setDataSarch] = useState({
-        type_id_fk:'',
+        type_id_fk: '',
         zone_id_fk: '',
         tiles_id_fk: '',
         option_id_fk: ''
@@ -124,9 +124,11 @@ function StockSales() {
             <div id="content" class="app-content px-3">
                 <ol class="breadcrumb float-xl-end">
                     <li class="breadcrumb-item"><Link to={'/home'}>ໜ້າຫຼັກ</Link></li>
+                    <li class="breadcrumb-item"><Link to={'/stock-all'}>ເບິ່ງແບບລວມ</Link></li>
                     <li class="breadcrumb-item active">ລາຍການສິນຄ້າ</li>
                 </ol>
                 <h1 class="page-header mb-3">ສາງສິນຄ້າ</h1>
+
                 <div className="panel">
                     <div class="panel-body">
                         <div className="row mb-3">
@@ -152,13 +154,13 @@ function StockSales() {
                                 <div className="d-lg-flex d-none align-items-center text-nowrap">
                                     ສະແດງ:
                                     <select onChange={(e) => handleShowLimit(e.target.value)} className="form-select border-blue form-select-sm ms-2  ps-2 pe-30px" >
-                                    <option value={100} selected>100</option>
-                                    <option value={250}>250</option>
-                                    <option value={500}>500</option>
-                                    <option value={1000}>1,000</option>
-                                    <option value={2500}>2,500</option>
-                                    <option value={5000}>5,000</option>
-                                    <option value={qtyItem}>ທັງໝົດ</option>
+                                        <option value={100} selected>100</option>
+                                        <option value={250}>250</option>
+                                        <option value={500}>500</option>
+                                        <option value={1000}>1,000</option>
+                                        <option value={2500}>2,500</option>
+                                        <option value={5000}>5,000</option>
+                                        <option value={qtyItem}>ທັງໝົດ</option>
                                     </select>
                                 </div>
                                 <div className="d-lg-block d-none ms-2 text-body text-opacity-50">
@@ -199,23 +201,23 @@ function StockSales() {
                                                         <td>{item.tile_name}</td>
                                                         <td className='text-center'>{item.qty_baht} {item.option_name}</td>
                                                         <td className='text-center'>{item.grams} g</td>
-                                                        <td className='text-end'>{numeral(item.price_buy*item.grams).format('0,00')} ກີບ</td>
-                                                        <td className='text-end'>{numeral(item.price_sale*item.grams).format('0,00')} ກີບ</td>
+                                                        <td className='text-end'>{numeral(item.price_buy * item.grams).format('0,00')} ກີບ</td>
+                                                        <td className='text-end'>{numeral(item.price_sale * item.grams).format('0,00')} ກີບ</td>
                                                         <td className='text-center'>{item.quantity} {item.unite_name}</td>
                                                         <td>{item.zone_name}</td>
                                                         <td>{item.typeName}</td>
                                                         <td className='text-center'>
-                                                        {item.quantity <= 5 && item.quantity > 0 ? (
-                                                        <span className='badge bg-orange'>
-                                                        <i className="fa-solid fa-circle-exclamation text-white"></i> ໃກ້ໝົດ
-                                                        </span>
-                                                        ) : item.quantity <= 0 ? (
-                                                        <span className='badge bg-danger '>
-                                                        <i className="fa-solid fa-circle-xmark text-white"></i> ໝົດແລ້ວ
-                                                        </span>
-                                                    ) : ''}
-                                                    </td>
-                                                       
+                                                            {item.quantity <= 5 && item.quantity > 0 ? (
+                                                                <span className='badge bg-orange'>
+                                                                    <i className="fa-solid fa-circle-exclamation text-white"></i> ໃກ້ໝົດ
+                                                                </span>
+                                                            ) : item.quantity <= 0 ? (
+                                                                <span className='badge bg-danger '>
+                                                                    <i className="fa-solid fa-circle-xmark text-white"></i> ໝົດແລ້ວ
+                                                                </span>
+                                                            ) : ''}
+                                                        </td>
+
                                                     </tr>
                                                 ))
                                             ) : (

@@ -97,7 +97,7 @@ function HomePage() {
             <>
               {itemoPtion.map((val, key) =>
                 <div className="col-xl-4 col-sm-6 col-md-6">
-                  <div className="widget widget-stats bg-gradient-blue border-4 border-top border-gold rounded-4">
+                  <div className="widget widget-stats bg-vk border-4 border-top border-gold rounded-4">
                     <div className="stats-icon"><img src={`./assets/img/icon/${item.type_Id === '1' ? 'gold-2.png' : 'gold.webp'}`} width={50} alt="" /></div>
                     <div className="stats-info">
                       <h4 className='fs-16px'>{item.typeName} <span className='text-gold'>ລາຄາຂາຍ</span> </h4>

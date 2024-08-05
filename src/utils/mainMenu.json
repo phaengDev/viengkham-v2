@@ -146,6 +146,45 @@
           "parth": "#"
         }
       ]
+    },
+    {
+      "id": 7,
+      "mainName": "ຈັດການເວັບໄຊ້",
+      "link": "",
+      "icon": "fa-solid fa-globe",
+      "sts": "2",
+      "datasub": [
+        {
+          "_id": 15,
+          "mainId": 6,
+          "sumName": "ເພີ່ມຂໍ້ມູນຂ່າວສານ",
+          "parth": "event"
+        },
+        {
+          "_id": 16,
+          "mainId": 6,
+          "sumName": "ຕັ້ງຄ່າພາບສະໄລໂຊ",
+          "parth": "slider"
+        },
+        {
+          "_id": 17,
+          "mainId": 6,
+          "sumName": "ຕັ້ງຄ່າໂປຣໂມຊັ່ນ",
+          "parth": "promotion"
+        },
+        {
+          "_id": 18,
+          "mainId": 6,
+          "sumName": "ຂອງຂວັນ ຫຼື ທີ່ລະລຶກ",
+          "parth": "gift"
+        },
+        {
+          "_id": 19,
+          "mainId": 6,
+          "sumName": "ຮັບສະມັກວຽກ",
+          "parth": "apply-job"
+        }
+      ]
     }
   ]
 }

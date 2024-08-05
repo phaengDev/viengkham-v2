@@ -390,8 +390,8 @@ function ProductsPage() {
                                             <tr>
                                                 <th width="1%" className='text-center'>ລ/ດ</th>
                                                 <th width="5%" className='text-center'>ຮູບ</th>
-                                                <th className=''>ຊື່ສິນຄ້າ</th>
                                                 <th className='text-center'>ລະຫັດສິນຄ້າ</th>
+                                                <th className=''>ຊື່ສິນຄ້າ</th>
                                                 {/* <th className='text-center'>ລະຫັດບາໂຄດ</th> */}
                                                 <th className=''>ນ້ຳໜັກ</th>
                                                 <th className='text-center'>ຈຳນວນລວມ</th>
@@ -412,11 +412,10 @@ function ProductsPage() {
                                                                     <td className='text-center with-img dt-type-numeric' width='5%'>
                                                                         <img src={item.file_image !== '' ? url + 'pos/' + item.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' role='button' onClick={() => viewImage(item.product_uuid, item.file_image, namePs)} alt="" />
                                                                     </td>
-                                                                    <td>{item.tile_name}</td>
                                                                     <td className='text-center'>{item.code_id}</td>
-                                                                    {/* <td className='text-center'>{item.barcode}</td> */}
+                                                                    <td>{item.tile_name}</td>
                                                                     <td>{item.qty_baht} {item.option_name}</td>
-                                                                    <td className='text-center'>{item.quantity_all}</td>
+                                                                    <td className='text-center'>{item.qty_all}</td>
                                                                     <td>{item.unite_name}</td>
                                                                     <td>{item.typeName}</td>
                                                                     <td className='text-center' width='10%'>
