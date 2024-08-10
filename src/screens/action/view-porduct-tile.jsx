@@ -294,7 +294,7 @@ const [data,setData]=useState({});
                                                                 <td>{item.tile_name}</td>
                                                                 <td className='text-center'>{item.code_id}</td>
                                                                 <td>{item.qty_baht} {item.option_name}</td>
-                                                                <td className='text-center'>{item.quantity_all}</td>
+                                                                <td className='text-center'>{item.qty_all}</td>
                                                                 <td>{item.unite_name}</td>
                                                                 <td>{item.typeName}</td>
 

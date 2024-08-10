@@ -1,33 +1,40 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Modal, Button, Input, SelectPicker,Placeholder } from 'rsuite';
-import { Config } from '../../config/connect';
+import { Modal, Button, Input, SelectPicker, Placeholder } from 'rsuite';
+import { Config,Urlimage } from '../../config/connect';
 import axios from 'axios';
 import Swal from "sweetalert2";
 import Alert from '../../utils/config';
-import { useUnite,useType } from '../../utils/selectOption';
+import { useUnite, useType } from '../../utils/selectOption';
 function PorductTile() {
     const api = Config.urlApi;
+    const img=Urlimage.url
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
-    const handleOpen = () =>{
+    const handleOpen = () => {
         setOpen(true);
         setInputs({
-            tile_id:'',
+            tile_id: '',
             type_id_fk: '',
             tile_name: '',
-            unite_id_fk:''
+            unite_id_fk: '',
+            title_image:'',
+            title_detail:''
         })
-    } 
+        setImageUrl('assets/img/icon/camera.png');
+        setSelectedFile('')
+    }
     const handleClose = () => setOpen(false);
-const itemUnite=useUnite();
-const data =useType();
+    const itemUnite = useUnite();
+    const data = useType();
 
     const [inputs, setInputs] = useState({
-        tile_id:'',
+        tile_id: '',
         type_id_fk: '',
         tile_name: '',
-        unite_id_fk:''
+        unite_id_fk: '',
+        title_image:'',
+        title_detail:'',
     })
 
 
@@ -36,42 +43,52 @@ const data =useType();
         setInputs({
             ...inputs, [name]: value
         });
-       
+
     }
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(inputs)
+        const inputData = new FormData();
+        for (const key in inputs) {
+            inputData.append(key, inputs[key]);
+        }
+    
         try {
-            axios.post(api + 'tileps/create', inputs)
-                .then(function (res) {
-                    if (res.status === 200) {
-                        handleClose();
-                        fetchTypePorduct();
-                        Alert.successData(res.data.message)
-                        setInputs({
-                            tile_id:'',
-                            type_id_fk: '',
-                            tile_name: '',
-                            unite_id_fk:''
-                        })
-                    } else {
-                        Alert.errorData(res.data.message)
-                    }
-                }.catch,function(error){
-                    Alert.errorData('ການບັນທຶກຂໍ້ມູນບໍ່ສຳເລັດ')
+            const response = await axios.post(api + 'tileps/create', inputData);
+            if (response.status === 200) {
+                handleClose();
+                fetchTypePorduct();
+                Alert.successData(response.data.message);
+                setInputs({
+                    tile_id: '',
+                    type_id_fk: '',
+                    tile_name: '',
+                    unite_id_fk: '',
+                    title_image: '',
+                    title_detail: '',
                 });
+                setImageUrl('assets/img/icon/camera.png');
+            }
         } catch (error) {
             console.error('Error inserting data:', error);
+            Alert.errorData('ການບັນທຶກຂໍ້ມູນບໍ່ສຳເລັດ');
         }
     };
+    
 
-    const headleEdit=(item)=>{
+    const headleEdit = (item) => {
         setInputs({
-            tile_id:item.tile_uuid,
+            tile_id: item.tile_uuid,
             type_id_fk: item.type_id_fk,
             tile_name: item.tile_name,
-            unite_id_fk:item.unite_id_fk
+            unite_id_fk: item.unite_id_fk,
+            title_detail:item.title_detail,
         });
+        if(item.title_image){
+            setImageUrl(`${img}title/${item.title_image}`)
+        }else{
+            setImageUrl('assets/img/icon/camera.png')
+        }
+        setSelectedFile(item.title_image)
         setOpen(true);
     }
 
@@ -93,12 +110,12 @@ const data =useType();
                     if (response.status === 200) {
                         fetchTypePorduct();
                         Alert.successData(response.data.message)
-                    }else if(response.status===400){
+                    } else if (response.status === 400) {
                         Alert.warningData(response.data.message);
                     } else {
                         Alert.errorData(response.data.message)
                     }
-                }) .catch((error) => {  // Fixed the syntax error here
+                }).catch((error) => {  // Fixed the syntax error here
                     Alert.errorData('ບໍ່ສາມາດລົບຂໍ້ມູນນີ້ໄດ້', error);
                 });
             }
@@ -121,23 +138,47 @@ const data =useType();
         }
     }
 
-    const [filter, setFilter] = useState('');
+    // const [filter, setFilter] = useState('');
     const Filter = (event) => {
-        setFilter(event)
         setItemTypePorduct(filterName.filter(n => n.tile_name.toLowerCase().includes(event)))
     }
 
-
+    const [selectedFile, setSelectedFile] = useState('');
+    const [imageUrl, setImageUrl] = useState('assets/img/icon/camera.png');
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setInputs({
+            ...inputs,
+            title_image: file
+        });
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImageUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    const handleClearImage = () => {
+        setSelectedFile('');
+        setImageUrl('assets/img/icon/camera.png')
+        document.getElementById('fileInput').value = '';
+        setInputs({
+            ...inputs,
+            title_image: ''
+        });
+    };
 
 
     //===========================\\
 
 
     const [currentPage, setcurrentPage] = useState(1);
-    const [itemsPerPage, setitemsPerPage] = useState(100);
-    const handleShowLimit = (value) => {
-        setitemsPerPage(value);
-    };
+    // const [itemsPerPage, setitemsPerPage] = useState(100);
+    // const handleShowLimit = (value) => {
+    //     setitemsPerPage(value);
+    // };
     const [pageNumberLimit, setpageNumberLimit] = useState(5);
     const [maxPageNumberLimit, setmaxPageNumberLimit] = useState(5);
     const [minPageNumberLimit, setminPageNumberLimit] = useState(0);
@@ -148,12 +189,12 @@ const data =useType();
     };
 
     const pages = [];
-    for (let i = 1; i <= Math.ceil(itemTypePorduct.length / itemsPerPage); i++) {
+    for (let i = 1; i <= Math.ceil(itemTypePorduct.length / 100); i++) {
         pages.push(i);
     }
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const indexOfLastItem = currentPage * 100;
+    const indexOfFirstItem = indexOfLastItem - 100;
     const currentItems = itemTypePorduct.slice(indexOfFirstItem, indexOfLastItem);
 
     const [i, setI] = useState(1);
@@ -191,7 +232,7 @@ const data =useType();
         }
     };
     //===========================\\
-    const viewData=(id)=>{
+    const viewData = (id) => {
         navigate(`/view-p?id=${id}`);
     }
     useEffect(() => {
@@ -221,6 +262,7 @@ const data =useType();
                             <thead className='thead-plc'>
                                 <tr>
                                     <th width="1%" className='text-center'>ລ/ດ</th>
+                                    <th width="1%" className='text-center'>ຮູບ</th>
                                     <th className='text-center'>ລະຫັດ</th>
                                     <th className=''>ຊື່ພະລິດຕະພັນ</th>
                                     <th className=''>ຫົວໜວຍ</th>
@@ -230,49 +272,52 @@ const data =useType();
                                 </tr>
                             </thead>
                             <tbody>
-                                {isLoading === true? <Placeholder.Grid rows={6} columns={6} active /> :
-                                itemTypePorduct.length > 0 ? (
-                                    itemTypePorduct.map((item, key) => (
-                                        <tr key={key}>
-                                            <td className='text-center' width='1%'>{key + 1}</td>
-                                            <td className='text-center'>{item.tile_code}</td>
-                                            <td>{item.tile_name}</td>
-                                            <td>{item.unite_name}</td>
-                                            <td>{item.typeName}</td>
-                                            <td className='text-center'> <span role='button' onClick={()=>viewData(item.tile_uuid)} className='badge bg-green rounded-3'> {item.qty_stock} ລາຍການ  <i class="fa-solid fa-eye"></i></span> </td>
-                                            <td className='text-center' width='10%'>
-                                                <button type='button' onClick={()=>headleEdit(item)} className="btn btn-blue btn-xs me-2">
-                                                    <i className="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button type='button' onClick={() => headleDelete(item.tile_uuid)} className="btn btn-red btn-xs">
-                                                    <i className="fa-solid fa-trash"></i>
-                                                </button>
-                                            </td>
+                                {isLoading === true ? <Placeholder.Grid rows={6} columns={6} active /> :
+                                    currentItems.length > 0 ? (
+                                        currentItems.map((item, key) => (
+                                            <tr key={key}>
+                                                <td className='text-center' width='1%'>{key + 1}</td>
+                                                <td className='text-center dt-type-numeric' width='1%'>
+                                                    <img src={item.title_image && item.title_image !=='' ? `${img}title/${item.title_image}`:'./assets/img/icon/picture.jpg'} alt="" className='rounded h-30px my-n1 mx-n1' /> 
+                                                    </td>
+                                                <td className='text-center'>{item.tile_code}</td>
+                                                <td>{item.tile_name}</td>
+                                                <td>{item.unite_name}</td>
+                                                <td>{item.typeName}</td>
+                                                <td className='text-center'> <span role='button' onClick={() => viewData(item.tile_uuid)} className='badge bg-green rounded-3'> {item.qty_stock} ລາຍການ  <i class="fa-solid fa-eye"></i></span> </td>
+                                                <td className='text-center' width='10%'>
+                                                    <button type='button' onClick={() => headleEdit(item)} className="btn btn-blue btn-xs me-2">
+                                                        <i className="fa-solid fa-pen-to-square"></i>
+                                                    </button>
+                                                    <button type='button' onClick={() => headleDelete(item.tile_uuid)} className="btn btn-red btn-xs">
+                                                        <i className="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="8" className="text-center text-danger">ບໍ່ມີການບິນທຶກຂໍ້ມູນ</td>
                                         </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="7" className="text-center text-danger">ບໍ່ມີການບິນທຶກຂໍ້ມູນ</td>
-                                    </tr>
-                                )}
+                                    )}
                             </tbody>
                         </table>
                         <div class="d-md-flex align-items-center">
-                        <div class="me-md-auto text-md-left text-center mb-2 mb-md-0">
-                            ສະແດງ 1 ຫາ {itemsPerPage} ຂອງ {qtyItem} ລາຍການ
+                            <div class="me-md-auto text-md-left text-center mb-2 mb-md-0">
+                                ສະແດງ 1 ຫາ 100 ຂອງ {qtyItem} ລາຍການ
+                            </div>
+                            <ul className="pagination  mb-0 ms-auto justify-content-center">
+                                <li className="page-item "><span role="button" onClick={handlePrevbtn} className={`page-link  ${currentPage === pages[0] ? 'disabled' : 'border-blue'}`} >ກອນໜ້າ</span></li>
+                                {minPageNumberLimit >= 1 ? (
+                                    <li className="page-item"><span role="button" className="page-link disabled">...</span></li>
+                                ) : ''}
+                                {renderPageNumbers}
+                                {pages.length > maxPageNumberLimit ? (
+                                    <li className="page-item"><span role="button" className="page-link disabled">...</span></li>
+                                ) : ''}
+                                <li className="page-item"><span role="button" onClick={handleNextbtn} className={`page-link  ${currentPage === pages[pages.length - 1] ? 'disabled' : 'border-blue'}`}>ໜ້າຕໍ່ໄປ</span></li>
+                            </ul>
                         </div>
-                        <ul className="pagination  mb-0 ms-auto justify-content-center">
-                            <li className="page-item "><span role="button" onClick={handlePrevbtn} className={`page-link  ${currentPage === pages[0] ? 'disabled' : 'border-blue'}`} >ກອນໜ້າ</span></li>
-                            {minPageNumberLimit >= 1 ? (
-                                <li className="page-item"><span role="button" className="page-link disabled">...</span></li>
-                            ) : ''}
-                            {renderPageNumbers}
-                            {pages.length > maxPageNumberLimit ? (
-                                <li className="page-item"><span role="button" className="page-link disabled">...</span></li>
-                            ) : ''}
-                            <li className="page-item"><span role="button" onClick={handleNextbtn} className={`page-link  ${currentPage === pages[pages.length - 1] ? 'disabled' : 'border-blue'}`}>ໜ້າຕໍ່ໄປ</span></li>
-                        </ul>
-                    </div>
                     </div>
                 </div>
             </div>
@@ -282,20 +327,37 @@ const data =useType();
                 </Modal.Header>
                 <form onSubmit={handleSubmit}>
                     <Modal.Body>
-                   <div className="row">
-                        <div className="form-group col-sm-12 mb-2">
-                            <label htmlFor="" className='form-label'>ຊື່ພະລິດຕະພັນ</label>
-                            <input type="text" name='tile_id' value={inputs.tile_id}  className='hide'/>
-                            <Input name='tile_name' value={inputs.tile_name} onChange={(e) => handleChange('tile_name', e)}  placeholder='ຊື່ພະລິດຕະພັນ'  required />
-                        </div>
-                        <div className="form-group mb-2 col-sm-6">
-                            <label htmlFor="" className='form-label'>ຫົວໜວຍ</label>
-                            <SelectPicker name='unite_id_fk' value={inputs.unite_id_fk} data={itemUnite} block  onChange={(e) => handleChange('unite_id_fk', e)} placeholder='ຫົວໜວຍ' />
-                        </div>
-                    <div className="form-group col-sm-6 mb-2">
-                            <label htmlFor="" className='form-label'>ຮູບປະພັນ </label>
-                            <SelectPicker name='type_id_fk' value={inputs.type_id_fk} data={data} block  onChange={(e) => handleChange('type_id_fk', e)} placeholder='ຮູບປະພັນ' />
-                        </div>
+                        <div className="row">
+                            <div className="form-group p-2 col-sm-12 mb-2">
+                                <center>
+                                <div class="h-120px w-120px position-relative">
+                                    <label role='button'>
+                                        <input type="file" id="fileInput" name='title_image' onChange={handleFileChange} accept="image/*" className='hide' />
+                                        <img src={imageUrl} class="w-120px rounded-3" />
+                                    </label>
+                                    {selectedFile && (
+                                        <span role='button' onClick={handleClearImage} class="w-20px h-20px p-0 d-flex align-items-center justify-content-center badge bg-danger text-white position-absolute end-0 top-0 rounded-pill mt-n2 me-n4">x</span>
+                                    )}
+                                </div>
+                                </center>
+                            </div>
+                            <div className="form-group col-sm-12 mb-2">
+                                <label htmlFor="" className='form-label'>ຊື່ພະລິດຕະພັນ</label>
+                                <input type="text" name='tile_id' value={inputs.tile_id} className='hide' />
+                                <Input name='tile_name' value={inputs.tile_name} onChange={(e) => handleChange('tile_name', e)} placeholder='ຊື່ພະລິດຕະພັນ' required />
+                            </div>
+                            <div className="form-group mb-2 col-sm-6">
+                                <label htmlFor="" className='form-label'>ຫົວໜວຍ</label>
+                                <SelectPicker name='unite_id_fk' value={inputs.unite_id_fk} data={itemUnite} block onChange={(e) => handleChange('unite_id_fk', e)} placeholder='ຫົວໜວຍ' />
+                            </div>
+                            <div className="form-group col-sm-6 mb-2">
+                                <label htmlFor="" className='form-label'>ຮູບປະພັນ </label>
+                                <SelectPicker name='type_id_fk' value={inputs.type_id_fk} data={data} block onChange={(e) => handleChange('type_id_fk', e)} placeholder='ຮູບປະພັນ' />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="" className='form-label'>ລາຍລະອຽດ</label>
+                                <Input as='textarea' rows={4} value={inputs.title_detail} onChange={(e) => handleChange('title_detail', e)}  />
+                            </div>
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
