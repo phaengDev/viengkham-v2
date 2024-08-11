@@ -67,6 +67,11 @@ function HistorySetPrice() {
                                             <img alt="" src="assets/img/icon/price-2.png" className="rounded-0 me-2px mb-1px" width={30} /> ຕັ້ງຄ່າລາຄາ ຊື້-ຂາຍ
                                         </Link>
                                     </li>
+                                    <li className=''>
+                                        <Link to={'/rate'}>
+                                            <img alt="" src="assets/img/icon/rate.png" className="rounded-0 me-2px mb-1px" width={30} /> ເລດເງິນ
+                                        </Link>
+                                    </li>
                                     {/* <li className='active'>
                                         <a href="javascript:;">
                                             <img alt="" src="assets/img/icon/price-h.png" className="rounded-0 me-2px mb-1px" width={30} />ການອັບເດດລາຄາ ຊື້-ຂາຍ
@@ -86,61 +91,61 @@ function HistorySetPrice() {
                             </div>
                         </div>
                         <div className="mailbox-content-body p-1">
-                        <div data-scrollbar="true" data-height="100%" >
-                        <div class="list-group list-group-lg no-radius list-email">
-                            <div className="row mb-1 p-3">
-                                <div className="col-sm-3">
-                                    <label htmlFor="" className='form-label'>ວັນທີ</label>
-                                    <DatePicker oneTap defaultValue={new Date()} format="dd/MM/yyyy" onChange={(e) => handleChange('startDate', e)} block />
+                            <div data-scrollbar="true" data-height="100%" >
+                                <div class="list-group list-group-lg no-radius list-email">
+                                    <div className="row mb-1 p-3">
+                                        <div className="col-sm-3">
+                                            <label htmlFor="" className='form-label'>ວັນທີ</label>
+                                            <DatePicker oneTap defaultValue={new Date()} format="dd/MM/yyyy" onChange={(e) => handleChange('startDate', e)} block />
+                                        </div>
+                                        <div className="col-sm-3">
+                                            <label htmlFor="" className='form-label'>ວັນທີ</label>
+                                            <DatePicker oneTap defaultValue={new Date()} format="dd/MM/yyyy" onChange={(e) => handleChange('endDate', e)} block />
+                                        </div>
+                                        <div className="col-sm-3">
+                                            <label htmlFor="" className='form-label'>ຫົວໜ່ວຍນ້ຳໜັກ</label>
+                                            <SelectPicker data={itemtp} onChange={(e) => handleChange('type_id_fk', e)} block />
+                                        </div>
+                                    </div>
+                                    <div className="table-responsive">
+                                        <table className="table  table-bordered align-middle w-100 text-nowrap">
+                                            <thead className='thead-plc'>
+                                                <tr>
+                                                    <th width="1%" className='text-center'>ລ/ດ</th>
+                                                    <th className='text-center'>ວັນທີ</th>
+                                                    <th className=''>ປະເພດ</th>
+                                                    <th className='text-center'>ນ້ຳໜັກ</th>
+                                                    <th className='text-end bg-red'>ລາຄາຊື້ເກົ່າ</th>
+                                                    <th className='text-end bg-green'>ລາຄາຊື້ໃໝ່</th>
+                                                    <th className='text-end bg-red'>ລາຄາຂາຍເກົ່າ</th>
+                                                    <th className='text-end bg-green'>ລາຄາຂາຍໃໝ່</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    itemData.length > 0 ? (
+                                                        itemData.map((item, key) =>
+                                                            <tr>
+                                                                <td>{key + 1}</td>
+                                                                <td className='text-center' > {moment(item.update_date).format('DD/MM/YYYY hh:mm')}</td>
+                                                                <td>{item.typeName}</td>
+                                                                <td className='text-center'>1 g</td>
+                                                                <td className='text-end bg-red-100'>{numeral(item.price_buy_old).format('0,00')} Kip</td>
+                                                                <td className='text-end bg-green-100'>{numeral(item.price_buy_new).format('0,00')} Kip</td>
+                                                                <td className='text-end bg-red-100'>{numeral(item.price_sale_old).format('0,00')} Kip</td>
+                                                                <td className='text-end bg-green-100'>{numeral(item.price_sale_new).format('0,00')} Kip</td>
+                                                            </tr>
+                                                        )) : (<>
+                                                            <tr>
+                                                                <td colSpan={8} className='text-center text-red'>ບໍ່ພົບຂໍ້ມູນທີ່ມີການບັນທຶກ</td>
+                                                            </tr>
+                                                        </>)}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                                <div className="col-sm-3">
-                                    <label htmlFor="" className='form-label'>ວັນທີ</label>
-                                    <DatePicker oneTap defaultValue={new Date()} format="dd/MM/yyyy" onChange={(e) => handleChange('endDate', e)} block />
-                                </div>
-                                <div className="col-sm-3">
-                                    <label htmlFor="" className='form-label'>ຫົວໜ່ວຍນ້ຳໜັກ</label>
-                                    <SelectPicker data={itemtp} onChange={(e) => handleChange('type_id_fk', e)} block />
-                                </div>
-                            </div>
-                            <div className="table-responsive">
-                                <table className="table  table-bordered align-middle w-100 text-nowrap">
-                                    <thead className='thead-plc'>
-                                        <tr>
-                                            <th width="1%" className='text-center'>ລ/ດ</th>
-                                            <th className='text-center'>ວັນທີ</th>
-                                            <th className=''>ປະເພດ</th>
-                                            <th className='text-center'>ນ້ຳໜັກ</th>
-                                            <th className='text-end bg-red'>ລາຄາຊື້ເກົ່າ</th>
-                                            <th className='text-end bg-green'>ລາຄາຊື້ໃໝ່</th>
-                                            <th className='text-end bg-red'>ລາຄາຂາຍເກົ່າ</th>
-                                            <th className='text-end bg-green'>ລາຄາຂາຍໃໝ່</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                        itemData.length >0?(
-                                        itemData.map((item, key) =>
-                                            <tr>
-                                                <td>{key + 1}</td>
-                                                <td className='text-center' > {moment(item.update_date).format('DD/MM/YYYY hh:mm')}</td>
-                                                <td>{item.typeName}</td>
-                                                <td className='text-center'>1 g</td>
-                                                <td className='text-end bg-red-100'>{numeral(item.price_buy_old).format('0,00')} Kip</td>
-                                                <td className='text-end bg-green-100'>{numeral(item.price_buy_new).format('0,00')} Kip</td>
-                                                <td className='text-end bg-red-100'>{numeral(item.price_sale_old).format('0,00')} Kip</td>
-                                                <td className='text-end bg-green-100'>{numeral(item.price_sale_new).format('0,00')} Kip</td>
-                                            </tr>
-                                        )):(<>
-                                        <tr>
-                                            <td colSpan={8} className='text-center text-red'>ບໍ່ພົບຂໍ້ມູນທີ່ມີການບັນທຶກ</td>
-                                        </tr>
-                                        </>)}
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
-</div>
-</div>
                     </div>
                 </div>
             </div>

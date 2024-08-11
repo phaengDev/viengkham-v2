@@ -196,6 +196,11 @@ export default function SystemPage() {
                                             <img alt="" src="assets/img/icon/price-2.png" className="rounded-0 me-2px mb-1px" width={30} /> ຕັ້ງຄ່າລາຄາ ຊື້-ຂາຍ
                                         </Link>
                                     </li>
+                                    <li className=''>
+                                        <Link to={'/rate'}>
+                                        <img alt="" src="assets/img/icon/rate.png" className="rounded-0 me-2px mb-1px" width={30} /> ເລດເງິນ
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

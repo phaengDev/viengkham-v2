@@ -95,6 +95,7 @@ export default function SetPirceSale() {
             price_sale: numeral(item.price_sale).format('0,00'),
             price_buy_old: item.price_buy,
             price_sale_old: item.price_sale,
+             price_img:''
         })
     }
 
@@ -107,6 +108,7 @@ export default function SetPirceSale() {
         price_sale: '',
         price_buy_old: '0',
         price_sale_old: '0',
+        price_img:''
     })
 
 
@@ -119,8 +121,12 @@ export default function SetPirceSale() {
 
     const handleSumit = (event) => {
         event.preventDefault();
+        const inputData = new FormData();
+        for (const key in inputs) {
+            inputData.append(key, inputs[key]);
+        }
         try {
-            axios.post(api + 'price/create', inputs)
+            axios.post(api + 'price/create', inputData)
                 .then(function (res) {
                     if (res.status === 200) {
                         setOpen(false)
@@ -136,6 +142,33 @@ export default function SetPirceSale() {
             console.error('Error inserting data:', error);
         }
     }
+
+
+    const [selectedFile, setSelectedFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setInputs({
+      ...inputs,
+      price_img: file
+    });
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const handleClearImage = () => {
+    setSelectedFile(null);
+    setImageUrl('')
+    setInputs({
+      ...inputs,
+      price_img: ''
+    });
+  };
 
 
     const toaster = useToaster();
@@ -193,6 +226,11 @@ export default function SetPirceSale() {
                                     <li className=''>
                                         <Link to={'/h-price'}>
                                             <img alt="" src="assets/img/icon/price-h.png" className="rounded-0 me-2px mb-1px" width={30} />ປະຫວັດອັບເດດ ຊື້-ຂາຍ
+                                        </Link>
+                                    </li>
+                                    <li className=''>
+                                        <Link to={'/rate'}>
+                                        <img alt="" src="assets/img/icon/rate.png" className="rounded-0 me-2px mb-1px" width={30} /> ເລດເງິນ
                                         </Link>
                                     </li>
                                 </ul>
@@ -356,6 +394,31 @@ export default function SetPirceSale() {
                             </div>
 
                         </div>
+
+                        {!selectedFile && (
+              <div className="form-group text-center  rounded-3 mb-2 mt-3 border-dotted">
+                <label role='button'>
+                  <input type="file" id='fileInput' onChange={handleFileChange} className='hide' accept="image/*" />
+                  <img src="assets/img/icon/upload-add.jpg" width={'25%'} alt="" />
+                </label>
+              </div>
+            )}
+            {selectedFile && (
+              <div class="card border-0 mt-3">
+                <div className="h-250px rounded-3"
+                  style={{
+                    backgroundImage: `url(${imageUrl})`,
+                    backgroundPosition: "center",
+                    backgroundSize: "cover",
+                    backgroundRepeat: "no-repeat"
+                  }} />
+                <div class="card-img-overlay float-end">
+                  <div class="float-end">
+                    <a href="javascript:;" onClick={handleClearImage} class="text-red "><i class="fa-solid fa-circle-xmark fs-2"></i></a>
+                  </div>
+                </div>
+              </div>
+            )}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button type='submit' appearance="primary">
