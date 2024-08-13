@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import { DatePicker, SelectPicker, Button,Placeholder } from 'rsuite';
-import { useZone, useOption, useTile } from '../../utils/selectOption';
+import { useZone, useOption, useTitle } from '../../utils/selectOption';
 import axios from 'axios';
 import { Config } from '../../config/connect';
 import moment from 'moment';
@@ -11,7 +11,7 @@ export default function ReportReceived() {
     const api = Config.urlApi;
     const itemZone = useZone();
     const itemOption = useOption();
-    const itemTile = useTile();
+    const itemTile = useTitle();
 
     const [data, setData] = useState({
         startDate: new Date(),

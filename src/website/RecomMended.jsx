@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import { Input, InputGroup, Modal, Button, SelectPicker, InputPicker,Message,useToaster } from 'rsuite'
 import { Config,Urlimage } from '../config/connect';
-import { useTile,useOption } from '../utils/selectOption';
+import { useTitle,useOption } from '../utils/selectOption';
 import axios from 'axios';
 import numeral from 'numeral';
 import Swal from 'sweetalert2';
@@ -24,7 +24,7 @@ setInputs({
 })
   } 
   const handleClose = () => setOpen(false);
-const itemType=useTile();
+const itemType=useTitle();
 const itemoPtion=useOption();
 
   const [inputs, setInputs] = useState({

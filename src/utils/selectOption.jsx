@@ -1,5 +1,6 @@
 import  { useState, useEffect } from "react";
 import { Config } from "../config/connect";
+import axios from "axios";
 const api = Config.urlApi;
 
 export function useProvince() {
@@ -130,7 +131,7 @@ export function useUnite() {
   }
 
 
-export function useTile() {
+export function useTitle() {
     const [itemTile, setItemTile] = useState([]);
     useEffect(() => {
       const showTilegold = async () => {
@@ -191,5 +192,28 @@ export function useStaff() {
 
   const data = itemStaff.map(item => ({ label: item.first_name+' '+item.last_name, value: item.staff_uuid }));
 
+  return data;
+}
+
+//==========
+
+
+export function useWeight(id) {
+  const [itemPorduct, setItemProduct] = useState([]);
+  useEffect(() => {
+    const fetchPorduct = async () => {
+      if (!id) return; // Exit if id is not valid
+        try {
+            const response = await fetch(api + 'posd/option/'+id );
+            const jsonData = await response.json();
+            setItemProduct(jsonData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+   
+    fetchPorduct();
+  }, [id]); 
+  const data = itemPorduct.map(item => ({ label: item.qty_baht + '/' + item.option_name, value: item.product_uuid }));
   return data;
 }

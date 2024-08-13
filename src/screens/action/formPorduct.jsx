@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { SelectPicker, Input, Button } from 'rsuite';
 import { useNavigate, Link } from 'react-router-dom';
 import { Config } from '../../config/connect';
-import { useUnite, useTile, useOption } from '../../utils/selectOption';
+import { useUnite, useTitle, useOption } from '../../utils/selectOption';
 function FormPorduct() {
     const api = Config.urlApi;
     const navigate = useNavigate();
@@ -10,7 +10,7 @@ function FormPorduct() {
         navigate(-1);
     };
     // const itemUnite = useUnite();
-    const itemTile = useTile();
+    const itemTile = useTitle();
     const itemOption = useOption();
 
 

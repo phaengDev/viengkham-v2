@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { DatePicker, SelectPicker, Input, InputGroup, Placeholder } from 'rsuite';
-import { useTile, useOption, useZone } from '../../utils/selectOption';
+import { useTitle, useOption, useZone } from '../../utils/selectOption';
 import { Config } from '../../config/connect';
 import moment from 'moment';
 import axios from 'axios';
@@ -9,7 +9,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 export default function ReportStock() {
   const branchId=localStorage.getItem('branch_Id')
-  const itemTile = useTile();
+  const itemTile = useTitle();
   const itemOption = useOption();
   const itemZone = useZone();
   const api = Config.urlApi;

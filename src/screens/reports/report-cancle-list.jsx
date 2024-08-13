@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { DatePicker, SelectPicker, Input, InputGroup, Placeholder} from 'rsuite';
-import { useStaff,useTile,useOption,useZone } from '../../utils/selectOption';
+import { useStaff,useTitle,useOption,useZone } from '../../utils/selectOption';
 import { Config } from '../../config/connect';
 import axios from 'axios';
 import moment from 'moment';
 import numeral from 'numeral';
 
 export default function ReportCancleList() {
-    const itemTile = useTile();
+    const itemTile = useTitle();
     const itemOption = useOption();
     // const itemStaff = useStaff();
     const itemZone = useZone();

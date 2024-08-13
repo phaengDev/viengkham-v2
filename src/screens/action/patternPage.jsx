@@ -4,7 +4,7 @@ import { Input, Message, useToaster, Badge, SelectPicker } from 'rsuite';
 import Select from 'react-select'
 import axios from 'axios';
 import { Config,Urlimage } from '../../config/connect';
-import { useOption, useType, useTile } from '../../utils/selectOption';
+import { useOption, useType, useTitle } from '../../utils/selectOption';
 import numeral from 'numeral';
 import Swal from 'sweetalert2';
 import Alert from '../../utils/config';
@@ -13,7 +13,7 @@ export default function PatternPage() {
     const url = Urlimage.url;
 
     const itemType = useType();
-    const itemTile = useTile();
+    const itemTile = useTitle();
     const itemOption = useOption();
 
     const [colrow, setColrow] = useState(false);

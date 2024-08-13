@@ -7,14 +7,14 @@ import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
 import Alert from '../../utils/config';
 import Swal from "sweetalert2";
-import { useOption, useType, useTile } from '../../utils/selectOption';
+import { useOption, useType, useTitle } from '../../utils/selectOption';
 
 function ProductsPage() {
     const api = Config.urlApi;
     const url = Urlimage.url;
 
     const itemType = useType();
-    const itemTile = useTile();
+    const itemTile = useTitle();
     const itemOption = useOption();
 
     const [inputs, setInputs] = useState({

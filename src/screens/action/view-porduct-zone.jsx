@@ -2,7 +2,7 @@
 import React,{useEffect,useState} from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {SelectPicker,Placeholder } from 'rsuite';
-import {useTile, useOption,useType } from '../../utils/selectOption';
+import {useTitle, useOption,useType } from '../../utils/selectOption';
 import { Config,Urlimage} from '../../config/connect';
 import axios from 'axios';
 export default function ViewPorductZone() {
@@ -16,7 +16,7 @@ export default function ViewPorductZone() {
         navigate(-1);
     };
     const itemType = useType();
-    const itemTile = useTile();
+    const itemTile = useTitle();
     const itemOption = useOption();
 
     const [formsearch, setFormsearch] = useState({

@@ -4,11 +4,21 @@ import axios from 'axios';
 import { Config, Urlimage } from '../config/connect';
 import Swal from 'sweetalert2';
 import Alert from '../utils/config';
+import numeral from 'numeral';
 export default function GiftMenory() {
     const api = Config.urlApi;
     const img = Urlimage.url;
     const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
+    const handleOpen = () =>{
+        setOpen(true);
+        setInputs({
+            giftId: '',
+            gift_name: '',
+            gift_text: '',
+            gift_img: '',
+            giftPrice:0
+        })
+    } 
     const handleClose = () => setOpen(false);
 
     const [inputs, setInputs] = useState({
@@ -16,6 +26,7 @@ export default function GiftMenory() {
         gift_name: '',
         gift_text: '',
         gift_img: '',
+        giftPrice:0
     })
 
 
@@ -68,6 +79,7 @@ export default function GiftMenory() {
                     gift_name: '',
                     gift_text: '',
                     gift_img: '',
+                    giftPrice:0
                 });
                 setSelectedFile(null);
             }
@@ -97,6 +109,7 @@ export default function GiftMenory() {
             giftId: item.gift_id,
             gift_name: item.gift_name,
             gift_text: item.gift_text,
+            giftPrice:item. gift_price
         })
         setOpen(true);
         if (item.gift_img) {
@@ -151,7 +164,6 @@ export default function GiftMenory() {
     useEffect(() => {
         fetchgift(activePage)
     }, [activePage])
-
     const currentItems = itemGift.slice((activePage - 1) * limit, activePage * limit);
 
     return (
@@ -185,7 +197,7 @@ export default function GiftMenory() {
                     currentItems.length > 0 ? (
                     <>
                         {currentItems.map((item, key) => (
-                            <div key={key} className="col-sm-6 col-lg-4 mb-4">
+                            <div key={key} className="col-sm-6 col-lg-3 col-md-4 mb-4">
                                 <div className="card border-0">
                                     <div
                                         className="h-250px rounded-top"
@@ -213,6 +225,7 @@ export default function GiftMenory() {
                                     </div>
                                     <div className="card-body">
                                         <h5 className="card-title mb-2">{item.gift_name}</h5>
+                                        <div className='price text-red'>{numeral(item.gift_price).format('0,00')} ກີບ</div>
                                         <div className="card-text three-lines">
                                             {item.gift_text}
                                         </div>
@@ -255,6 +268,10 @@ export default function GiftMenory() {
                         <div className="form-group mb-2">
                             <label htmlFor="" className='form-label'>ຊື່ຂອງຂວັນ</label>
                             <Input value={inputs.gift_name} onChange={(e) => handleChange('gift_name', e)} />
+                        </div>
+                        <div className="form-group mb-2">
+                            <label htmlFor="" className='form-label'>ມູນຄ່າເຄື່ອງ</label>
+                            <Input value={numeral(inputs.giftPrice).format('0,00')} onChange={(e) => handleChange('giftPrice', e)} />
                         </div>
                         <div className="form-group mb-2">
                             <label htmlFor="" className='form-label'>ລາຍລະອຽດ</label>

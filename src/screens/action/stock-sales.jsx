@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { SelectPicker, Placeholder } from 'rsuite';
-import { useOption, useTile, useZone } from '../../utils/selectOption';
+import { useOption, useTitle, useZone,useWeight } from '../../utils/selectOption';
 import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
 import numeral from 'numeral';
@@ -9,29 +9,39 @@ function StockSales() {
     const api = Config.urlApi;
     const paste = Urlimage.url;
     const navigate = useNavigate()
-    // const itemType = useType();
-    const itemTile = useTile();
+    const itemTitle = useTitle();
     const itemOption = useOption();
     const itemZone = useZone();
     const addResive = () => {
         navigate('/received')
     }
+
+
+    const [idpos, setIdpos] = useState(null);
+
+    const itemWeight = useWeight(idpos);
+
     const [datasearch, setDataSarch] = useState({
         type_id_fk: '',
         zone_id_fk: '',
         tiles_id_fk: '',
-        option_id_fk: ''
+        option_id_fk: '',
+        product_id_fk:''
     });
+
     const handleChange = (name, value) => {
         setDataSarch({
             ...datasearch, [name]: value
         })
+        if (name === 'tiles_id_fk') {
+            setIdpos(value);
+        }
     };
+
 
 
     const heandleSearch = () => {
         fetchStockPorduct();
-
     }
 
     const [isLoading, setIsLoading] = useState(true);
@@ -49,9 +59,9 @@ function StockSales() {
             setIsLoading(false);
         }
     }
-    const [filter, setFilter] = useState('');
+    // const [filter, setFilter] = useState('');
     const Filter = (event) => {
-        setFilter(event)
+        // setFilter(event)
         setItemPorduct(filterName.filter(n => n.tile_name.toLowerCase().includes(event)))
     }
 
@@ -98,7 +108,6 @@ function StockSales() {
 
     const handleNextbtn = () => {
         setcurrentPage(currentPage + 1);
-
         if (currentPage + 1 > maxPageNumberLimit) {
             setmaxPageNumberLimit(maxPageNumberLimit + pageNumberLimit);
             setminPageNumberLimit(minPageNumberLimit + pageNumberLimit);
@@ -118,7 +127,7 @@ function StockSales() {
 
     useEffect(() => {
         fetchStockPorduct();
-    }, [])
+    }, [idpos])
     return (
         <>
             <div id="content" class="app-content px-3">
@@ -128,23 +137,26 @@ function StockSales() {
                     <li class="breadcrumb-item active">ລາຍການສິນຄ້າ</li>
                 </ol>
                 <h1 class="page-header mb-3">ສາງສິນຄ້າ</h1>
-
                 <div className="panel">
                     <div class="panel-body">
                         <div className="row mb-3">
                             <div className="col-sm-3 form-group mb-2">
-                                <label htmlFor="" className='form-label'>ໂຊນຂາຍ</label>
+                                <label htmlFor="" className='form-label'>ຕູ້ຂາຍ</label>
                                 <SelectPicker data={itemZone} onChange={(e) => handleChange('zone_id_fk', e)} block placeholder="ເລືອກ" />
                             </div>
                             <div className="col-sm-3 form-group mb-2">
                                 <label htmlFor="" className='form-label'>ລາຍການ</label>
-                                <SelectPicker data={itemTile} onChange={(e) => handleChange('tiles_id_fk', e)} block placeholder="ເລືອກ" />
+                                <SelectPicker data={itemTitle} onChange={(e) => handleChange('tiles_id_fk', e)} block placeholder="ເລືອກ" />
                             </div>
-                            <div className="col-sm-3 form-group mb-2">
-                                <label htmlFor="" className='form-label'>ນ້ຳໜັກ</label>
+                            <div className="col-sm-2 form-group mb-2">
+                                <label htmlFor="" className='form-label'>ຈຳນວນນ້ຳໜັກ</label>
+                                <SelectPicker data={itemWeight} onChange={(e) => handleChange('product_id_fk', e)} block placeholder="ເລືອກ" />
+                            </div>
+                            <div className="col-sm-2 form-group mb-2">
+                                <label htmlFor="" className='form-label'>ຫົວໜວຍນ້ຳໜັກ</label>
                                 <SelectPicker data={itemOption} onChange={(e) => handleChange('option_id_fk', e)} block placeholder="ເລືອກ" />
                             </div>
-                            <div className="col-sm-3 mt-4 mb-2">
+                            <div className="col-sm-2 mt-4 mb-2">
                                 <button onClick={heandleSearch} className='btn btn-danger fs-13px me-2'><i className="fas fa-search"></i> ຄົ້ນຫາ</button>
                                 <button type='button' onClick={addResive} className='btn btn-dark fs-13px'><i className="fas fa-plus"></i> ນຳເຂົ້າ</button>
                             </div>

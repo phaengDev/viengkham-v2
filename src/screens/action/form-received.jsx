@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import { SelectPicker, Input, DatePicker, Message, useToaster, Modal, Button } from 'rsuite';
-import { useOption, useUnite, useTile, useZone } from '../../utils/selectOption';
+import { useOption, useUnite, useTitle, useZone } from '../../utils/selectOption';
 import Select from 'react-select'
 import axios from 'axios';
 import moment from 'moment';
@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 function RormReceived() {
     const api = Config.urlApi;
-    const itemTile = useTile();
+    const itemTile = useTitle();
     const itemOption = useOption();
     const itemZone = useZone();
 
@@ -321,7 +321,6 @@ const handleUpload = () => {
                                     <div className="panel-body ">
                                         <div className=" form-group mb-2">
                                             <label htmlFor="" className='form-label'>ເລືອກສິນຄ້າ</label>
-                                            <input type="text" value={inputs.receivedId = inputs.receivedId} className='hide' />
                                             <Select onChange={(e) => changeSeaerch('tiles_id_fk', e.value)} value={itemTile.find(obj => obj.value === inputs.tiles_id_fk)} options={itemTile} required />
                                         </div>
                                         <div className=" form-group mb-2">

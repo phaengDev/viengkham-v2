@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import { SelectPicker, Input, DatePicker, InputGroup, Button, Tooltip, Whisper, Modal, Placeholder } from 'rsuite';
-import { useStaff, useTile, useZone } from '../../utils/selectOption';
+import { useStaff, useTitle, useZone } from '../../utils/selectOption';
 import axios from 'axios';
 import moment from 'moment';
 import { Config } from '../../config/connect';
