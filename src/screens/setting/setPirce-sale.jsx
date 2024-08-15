@@ -91,11 +91,12 @@ export default function SetPirceSale() {
             prices_id: item.prices_id,
             type_id_fk: item.type_id_fk,
             kilograms: item.kilograms,
-            price_buy: numeral(item.price_buy).format('0,00'),
-            price_sale: numeral(item.price_sale).format('0,00'),
+            price_buy: item.price_buy,
+            price_sale: item.price_sale,
             price_buy_old: item.price_buy,
             price_sale_old: item.price_sale,
-             price_img:''
+            Decrease:item.decrease,
+            price_img: ''
         })
     }
 
@@ -108,15 +109,16 @@ export default function SetPirceSale() {
         price_sale: '',
         price_buy_old: '0',
         price_sale_old: '0',
-        price_img:''
+        price_img: '',
+        Decrease:'0'
     })
 
 
     const handleChange = (name, value) => {
-        const dataValue = numeral(value).format('0,00');
         setInputs({
-            ...inputs, [name]: dataValue
+            ...inputs, [name]: value
         })
+       
     }
 
     const handleSumit = (event) => {
@@ -145,50 +147,53 @@ export default function SetPirceSale() {
 
 
     const [selectedFile, setSelectedFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState('');
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setInputs({
-      ...inputs,
-      price_img: file
-    });
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  const handleClearImage = () => {
-    setSelectedFile(null);
-    setImageUrl('')
-    setInputs({
-      ...inputs,
-      price_img: ''
-    });
-  };
+    const [imageUrl, setImageUrl] = useState('');
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setInputs({
+            ...inputs,
+            price_img: file
+        });
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImageUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    const handleClearImage = () => {
+        setSelectedFile(null);
+        setImageUrl('')
+        setInputs({
+            ...inputs,
+            price_img: ''
+        });
+    };
 
 
     const toaster = useToaster();
-    const [placement, setPlacement] = useState('topEnd');
+    // const [placement, setPlacement] = useState('topEnd');
     const showMessage = (messName, notifi) => {
         const message = (
             <Message showIcon type={notifi} closable>
                 <strong>ຢືນຢັນ! </strong> {messName}
             </Message>
         );
-        toaster.push(message, { placement });
+        toaster.push(message, { placement: 'topEnd' });
     };
-
     useEffect(() => {
         fetchOption();
         fecthData();
     }, [])
 
 
+    const [isReadOnly, setIsReadOnly] = useState(true); // Initialize state to control read-only mode
 
+    const handleUnlock = () => {
+        setIsReadOnly(!isReadOnly); // Toggle the read-only state
+    };
 
     return (
         <>
@@ -213,9 +218,9 @@ export default function SetPirceSale() {
                                             <i className="fa fa-home fa-lg fa-fw me-2" /> ຂໍ້ມູນຮ້ານນາງວຽງຄຳ
                                         </Link>
                                     </li>
-                                    <li  className=''>
+                                    <li className=''>
                                         <Link to={'/unite'}>
-                                        <i class="fa-brands fa-ubuntu fa-lg fa-fw me-2"></i> ຕັ້ງຄ່າຫົວໜ່ວຍ
+                                            <i class="fa-brands fa-ubuntu fa-lg fa-fw me-2"></i> ຕັ້ງຄ່າຫົວໜ່ວຍ
                                         </Link>
                                     </li>
                                     <li className='active'>
@@ -230,7 +235,7 @@ export default function SetPirceSale() {
                                     </li>
                                     <li className=''>
                                         <Link to={'/rate'}>
-                                        <img alt="" src="assets/img/icon/rate.png" className="rounded-0 me-2px mb-1px" width={30} /> ເລດເງິນ
+                                            <img alt="" src="assets/img/icon/rate.png" className="rounded-0 me-2px mb-1px" width={30} /> ເລດເງິນ
                                         </Link>
                                     </li>
                                 </ul>
@@ -338,11 +343,12 @@ export default function SetPirceSale() {
                                     <div class="row ">
                                         {itemoPtion.map((val, key) =>
                                             <div class="col-xl-4 col-sm-6 col-md-6">
-                                                <div class="widget widget-stats bg-gradient-blue border-4 border-top border-gold rounded-4">
-                                                    <div class="stats-icon"><img src={`./assets/img/icon/${item.type_Id === '1' ? 'gold-2.png' : 'gold.webp'}`} width={50} alt="" /></div>
+                                                <div class="widget widget-stats bg-vk border-4 border-top border-gold rounded-4">
+                                                    <div class="stats-icon"><img src={`./assets/img/icon/${item.type_Id === 1 ? 'gold-2.png' : 'gold.webp'}`} width={50} alt="" /></div>
                                                     <div class="stats-info">
-                                                        <h4 className='fs-16px'>{item.typeName} <span className='text-gold'>ລາຄາຂາຍ</span> </h4>
-                                                        <p>1 {val.option_name}: {numeral(item.price_sale * val.grams).format('0,00')} Kip</p>
+                                                        <h4 className='fs-16px'>{item.typeName} <span className='text-gold'>1 {val.option_name}</span> </h4>
+                                                        <p className='fs-18px'>ຊື້: {numeral(item.price_buy * val.grams).format('0,00')} Kip </p>
+                                                        <p className='mt-1 fs-18px'>ຂາຍ : {numeral(item.price_sale * val.grams).format('0,00')} Kip </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -378,47 +384,55 @@ export default function SetPirceSale() {
                                     <InputGroup.Addon>g</InputGroup.Addon>
                                 </InputGroup>
                             </div>
-                            <div className="col-sm-6 mb-2">
-                                <label htmlFor="" className='form-label'>ລາຄາຊື້ /1g  </label>
-                                <InputGroup inside >
-                                    <Input value={inputs.price_buy} onChange={(e) => handleChange('price_buy', e)} placeholder='ລາຄາຊື້' block />
-                                    <InputGroup.Addon>Kip</InputGroup.Addon>
-                                </InputGroup>
-                            </div>
+
                             <div className="col-sm-6 mb-2">
                                 <label htmlFor="" className='form-label'>ລາຄາຂາຍ /1g </label>
                                 <InputGroup inside >
-                                    <Input value={inputs.price_sale} onChange={(e) => handleChange('price_sale', e)} placeholder='ລາຄາຂາຍ' block />
+                                    <Input value={numeral(inputs.price_sale).format('0,00')} onChange={(e) => handleChange('price_sale', e)} placeholder='ລາຄາຂາຍ' block />
                                     <InputGroup.Addon>Kip</InputGroup.Addon>
+                                </InputGroup>
+                            </div>
+
+                            <div className="col-sm-6 mb-2">
+                                <label htmlFor="" className='form-label'>ລາຄາຊື້   <i class="fa-solid fa-sort-down text-red"/> {numeral(inputs.Decrease).format('0,00')} /1g</label>
+                                <InputGroup inside >
+                                    <Input value={numeral(inputs.Decrease).format('0,00')} onChange={(e) => handleChange('Decrease', e)} placeholder='ລາຄາຊື້' block readOnly={isReadOnly} />
+                                    <InputGroup.Addon role='button' onClick={handleUnlock}>
+                                        {isReadOnly ? (
+                                            <i className="fa-solid fa-lock" /> 
+                                        ) : (
+                                            <i className="fa-solid fa-lock-open" /> 
+                                        )}
+                                    </InputGroup.Addon>
                                 </InputGroup>
                             </div>
 
                         </div>
 
                         {!selectedFile && (
-              <div className="form-group text-center  rounded-3 mb-2 mt-3 border-dotted">
-                <label role='button'>
-                  <input type="file" id='fileInput' onChange={handleFileChange} className='hide' accept="image/*" />
-                  <img src="assets/img/icon/upload-add.jpg" width={'25%'} alt="" />
-                </label>
-              </div>
-            )}
-            {selectedFile && (
-              <div class="card border-0 mt-3">
-                <div className="h-250px rounded-3"
-                  style={{
-                    backgroundImage: `url(${imageUrl})`,
-                    backgroundPosition: "center",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat"
-                  }} />
-                <div class="card-img-overlay float-end">
-                  <div class="float-end">
-                    <a href="javascript:;" onClick={handleClearImage} class="text-red "><i class="fa-solid fa-circle-xmark fs-2"></i></a>
-                  </div>
-                </div>
-              </div>
-            )}
+                            <div className="form-group text-center  rounded-3 mb-2 mt-3 border-dotted">
+                                <label role='button'>
+                                    <input type="file" id='fileInput' onChange={handleFileChange} className='hide' accept="image/*" />
+                                    <img src="assets/img/icon/upload-add.jpg" width={'25%'} alt="" />
+                                </label>
+                            </div>
+                        )}
+                        {selectedFile && (
+                            <div class="card border-0 mt-3">
+                                <div className="h-250px rounded-3"
+                                    style={{
+                                        backgroundImage: `url(${imageUrl})`,
+                                        backgroundPosition: "center",
+                                        backgroundSize: "cover",
+                                        backgroundRepeat: "no-repeat"
+                                    }} />
+                                <div class="card-img-overlay float-end">
+                                    <div class="float-end">
+                                        <a href="javascript:;" onClick={handleClearImage} class="text-red "><i class="fa-solid fa-circle-xmark fs-2"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button type='submit' appearance="primary">

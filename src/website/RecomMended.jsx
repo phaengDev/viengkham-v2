@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import { Input, InputGroup, Modal, Button, SelectPicker, InputPicker,Message,useToaster } from 'rsuite'
 import { Config,Urlimage } from '../config/connect';
-import { useTitle,useOption } from '../utils/selectOption';
+import { useTitle,useTitleList,useOption } from '../utils/selectOption';
 import axios from 'axios';
 import numeral from 'numeral';
 import Swal from 'sweetalert2';
@@ -9,6 +9,7 @@ import Alert from '../utils/config';
 function RecomMended() {
   const api=Config.urlApi;
   const img=Urlimage.url;
+  const titileList=useTitleList();
   const [open, setOpen] = React.useState(false);
   const handleOpen = () =>{
     setOpen(true);
@@ -18,7 +19,6 @@ setInputs({
     recomennde_name: '',
     qty_baht: '',
     optoin_id_fk:'',
-    price_sale: 0,
     recd_remark: '',
     recd_image:''
 })
@@ -33,7 +33,6 @@ const itemoPtion=useOption();
     recomennde_name: '',
     qty_baht: '',
     optoin_id_fk:'',
-    price_sale: 0,
     recd_remark: '',
     recd_image:''
   })
@@ -90,7 +89,6 @@ const itemoPtion=useOption();
           recomennde_name: '',
           qty_baht: '',
           optoin_id_fk:'',
-          price_sale: 0,
           recd_remark: '',
           recd_image:''
         });
@@ -133,7 +131,6 @@ const itemoPtion=useOption();
     title_id_fk: item.title_id_fk,
     recomennde_name: item.recomennde_name,
     qty_baht: item.qty_baht,
-    price_sale: item.price_sale,
     recd_remark: item.recd_remark,
     optoin_id_fk:item.optoin_id_fk,
     recd_image:null
@@ -178,6 +175,23 @@ const itemoPtion=useOption();
     fetchRecomende()
   },[])
 
+// =======================
+const [selectedTitle, setSelectedTitle] = useState('ເລືອກປະເພດ'); // Default label
+
+const handleSelect = (item) => {
+  if(item===null){
+    setSelectedTitle('ເລືອກປະເພດ');
+    setItemRecomende(filterName.filter(n => 
+      n.title_id_fk.toLowerCase().includes(''.toLowerCase())));
+  }else{
+    setSelectedTitle(item.tile_name); // Update the selected item
+    setItemRecomende(filterName.filter(n => 
+      n.title_id_fk.toLowerCase().includes(item.tile_uuid.toLowerCase())));
+    }
+};
+
+// =============================
+
 
 
   const toaster = useToaster();
@@ -217,14 +231,14 @@ const itemoPtion=useOption();
       <div class="card border-0">
         <div class="tab-content p-3">
           <div class="input-group mb-3">
-            <button class="btn btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ເລືອກປະເພດ <b class="caret"></b></button>
+            <button class="btn btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{selectedTitle} <b class="caret"></b></button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
-              <div role="separator" class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Separated link</a>
+            <a class="dropdown-item fs-14px" href="javascript:;" onClick={() => handleSelect(null)} >--ທັງໝົດ--</a>
+              {titileList.map((item,index)=>
+              <a class="dropdown-item fs-14px" href="javascript:;" onClick={() => handleSelect(item)} ><i class="fa-solid fa-angle-right"/> {item.tile_name}</a>
+            )}
             </div>
+
             <div class="flex-fill position-relative">
               <InputGroup inside className='rounded-start-0'>
                 <InputGroup.Addon><i className='fas fa-search' /></InputGroup.Addon>
@@ -241,8 +255,8 @@ const itemoPtion=useOption();
                   <th class="pt-0 pb-2"></th>
                   <th class="pt-0 pb-2">ລາຍການສິນຄ້າ</th>
                   <th class="pt-0 pb-2">ນ້ຳໜັກ</th>
-                  <th class="pt-0 pb-2">ປະເພດ</th>
                   <th class="pt-0 pb-2">ລາຄາຂາຍ</th>
+                  <th class="pt-0 pb-2">ປະເພດ</th>
                   <th class="pt-0 pb-2">ໝາຍເຫດ</th>
                 </tr>
               </thead>
@@ -266,8 +280,8 @@ const itemoPtion=useOption();
                     </div>
                   </td>
                   <td class="align-middle">{item.qty_baht+' '+item.option_name}</td>
+                  <td class="align-middle">{numeral(item.qty_baht*item.price_sale).format('0,00')}</td>
                   <td class="align-middle">{item.tile_name}</td>
-                  <td class="align-middle">{numeral(item.price_sale).format('0,00')}</td>
                   <td class="align-middle">{item.recd_remark}</td>
                 </tr>
                 ))}
@@ -302,7 +316,7 @@ const itemoPtion=useOption();
 
       <Modal open={open} size={'md'} onClose={handleClose}>
         <Modal.Header>
-          <Modal.Title>Modal Title</Modal.Title>
+          <Modal.Title>ສິນຄ້າແນະນຳ</Modal.Title>
         </Modal.Header>
         <form onSubmit={handleSubmit}>
         <Modal.Body>
@@ -322,10 +336,6 @@ const itemoPtion=useOption();
             <div className="col-sm-6 col-6 mb-2">
               <label htmlFor="" className='form-label'>ຫົວໜວຍ</label>
               <InputPicker block  data={itemoPtion} value={inputs.optoin_id_fk} onChange={(e)=>handledChange('optoin_id_fk',e)} />
-            </div>
-            <div className="col-sm-12 mb-2">
-              <label htmlFor="" className='form-label'>ລາຄາຂາຍ</label>
-              <Input block  placeholder='0,00' value={numeral(inputs.price_sale).format('0,00')} onChange={(e)=>handledChange('price_sale',e)} />
             </div>
             <div className="col-sm-12 mb-2">
               <label htmlFor="" className='form-label'>ໝາຍເຫດ</label>

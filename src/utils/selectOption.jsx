@@ -143,14 +143,32 @@ export function useTitle() {
           console.error('Error fetching data:', error);
         }
       };
-  
       showTilegold();
     }, []); 
   
     const data = itemTile.map(item => ({ label: item.tile_name, value: item.tile_uuid }));
-  
     return data;
   }
+
+
+  export function useTitleList() {
+    const [itemTile, setItemTile] = useState([]);
+    useEffect(() => {
+      const showTitleList = async () => {
+        try {
+          const response = await fetch(api + 'tileps');
+          const jsonData = await response.json();
+          setItemTile(jsonData);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+      showTitleList();
+    }, []); 
+  return itemTile;
+  }
+
+
 
 export function useZone() {
   const [itemZone, setItemZone] = useState([]);

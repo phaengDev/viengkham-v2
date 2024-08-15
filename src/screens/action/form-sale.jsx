@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react'
 // import { Link, useNavigate } from 'react-router-dom'
 import Modal from 'react-bootstrap/Modal';
-import { Input, Message, useToaster, InputGroup,InputNumber } from 'rsuite';
+import { Input, Message, useToaster, InputGroup, InputNumber, SelectPicker } from 'rsuite';
 import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
 import Alert from '../../utils/config';
 import numeral from 'numeral';
 import Invoice from '../../invoice/bill-invoice';
 import Swal from 'sweetalert2';
+import Select from 'react-select'
+import { useStaff } from '../../utils/selectOption';
+import { QrReader } from 'react-qr-reader';
 function FormSale() {
 
   const api = Config.urlApi;
@@ -19,6 +22,7 @@ function FormSale() {
   // const handleGoBack = () => {
   //   navigate(-1);
   // };
+  const itemStaff = useStaff();
   const userId = localStorage.getItem('user_uuid')
   const barnchId = localStorage.getItem('branch_Id')
   const inputRef = useRef(null);
@@ -35,6 +39,11 @@ function FormSale() {
   }
   const [showpay, setShowPay] = useState(false);
   const [show, setShow] = useState(true);
+  const handleClose = () =>{
+    setCheckUser(1)
+    // setShow(false);
+  }
+
   const handleModal = (index) => {
     setShow(index);
   }
@@ -53,6 +62,31 @@ function FormSale() {
     staff_uuid: '',
     id_code: ''
   })
+
+  const handleChangeStaff = async (value) => {
+    try {
+      const response = await fetch(api + 'staff/search/' + value);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const res = await response.json();
+      if (res) {
+        setShow(false);
+        setData({
+          first_name: res.first_name || '',
+          last_name: res.last_name || '',
+          staff_uuid: res.staff_uuid || '',
+          id_code: res.id_code || '',
+        });
+        setStaffId(res.staff_uuid || '');
+      } else {
+        console.error('No data found in response:', res);
+      }
+    } catch (error) {
+      // console.error('Error fetching data:', error);
+    }
+  };
+
 
   const [staffId, setStaffId] = useState('')
   const [error, setError] = useState(false);
@@ -205,10 +239,10 @@ function FormSale() {
   //   setPattern(price)
   //  }
 
-const [buyadd,setBuyadd]=useState(0)
+  const [buyadd, setBuyadd] = useState(0)
   const [orderQty, setOrderQty] = useState('1');
   const confirmOrder = () => {
-    const buyAddValue = buyadd > 0 ? (buyadd*dataps.kilogram) : 0;
+    const buyAddValue = buyadd > 0 ? (buyadd * dataps.kilogram) : 0;
     const dataOrder = {
       product_id_fk: dataps.product_uuid,
       zone_id_fk: dataps.zone_id_fk,
@@ -218,7 +252,7 @@ const [buyadd,setBuyadd]=useState(0)
       patternPrice: pattern,
       order_qty: orderQty,
       buy_add: buyAddValue,
-      qty_add:buyadd,
+      qty_add: buyadd,
       staff_id_fk: data.staff_uuid,
       user_id_fk: userId
     };
@@ -265,8 +299,8 @@ const [buyadd,setBuyadd]=useState(0)
         zone_id_fk: item.zone_id_fk,
         order_qty: item.order_qty,
         qty_grams: (item.qty_grams * item.order_qty),
-        qty_add:item.qty_add,
-        grams_add:item.grams_add,
+        qty_add: item.qty_add,
+        grams_add: item.grams_add,
         price_sale: item.price_sale,
         price_buy: item.price_buy,
         price_pattern: item.price_pattern,
@@ -548,6 +582,22 @@ const [buyadd,setBuyadd]=useState(0)
     };
 
   }, [datasearch, userId, barnchId, data, staffId, balancePayment, totalBalance, balanceCash, checkOnly, values])
+
+  const [checkUser, setCheckUser] = useState(1)
+
+  const checkUseFrom = (index) => {
+    setCheckUser(index)
+  }
+  const [scanResultWebCam, setScanResultWebCam] = useState('');
+
+  const handleErrorWebCam = (error) => {
+    console.log(error);
+  }
+  const handleScanWebCam = (result) => {
+    if (result) {
+      setScanResultWebCam(result);
+    }
+  }
   return (
     <>
       <div id="app" className="app app-content-full-height app-without-sidebar app-without-header">
@@ -670,7 +720,7 @@ const [buyadd,setBuyadd]=useState(0)
                                 <div className="img"
                                   style={{ backgroundImage: `url('${val.file_image !== '' ? img + 'pos/' + val.file_image : images}')` }} />
                                 <div className="info">
-                                  <div className="title">{val.tile_name} ( { val.qty_baht} {val.option_name}) { val.qty_add > 0 ?(<span className='text-green'>+ {val.qty_add} </span>):''}</div>
+                                  <div className="title">{val.tile_name} ( {val.qty_baht} {val.option_name}) {val.qty_add > 0 ? (<span className='text-green'>+ {val.qty_add} </span>) : ''}</div>
                                   {val.price_pattern > 0 ? (
                                     <div className='desc text-green'>+{numeral((val.price_pattern * val.order_qty) * val.qty_baht).format('0,00')}</div>
                                   ) : ('')}
@@ -678,7 +728,7 @@ const [buyadd,setBuyadd]=useState(0)
                                   <div className="single-price">ໂຊນ: <span className=' text-primary'> {val.zone_name}</span></div>
                                   <div className="input-group qty">
                                     <div className="input-group-append">
-                                      <span role='button' onClick={() => heandleMinus(val.cart_id)} className={`btn btn-danger ${val.qty_add > 0 ? 'disabled':''}`}>
+                                      <span role='button' onClick={() => heandleMinus(val.cart_id)} className={`btn btn-danger ${val.qty_add > 0 ? 'disabled' : ''}`}>
                                         <i className="fa fa-minus" />
                                       </span>
                                     </div>
@@ -688,7 +738,7 @@ const [buyadd,setBuyadd]=useState(0)
                                       value={val.order_qty}
                                     />
                                     <div className="input-group-prepend">
-                                      <span role='button' onClick={() => heandlePlus(val.cart_id)} className={`btn btn-success ${val.qty_add > 0 ? 'disabled':''}`}>
+                                      <span role='button' onClick={() => heandlePlus(val.cart_id)} className={`btn btn-success ${val.qty_add > 0 ? 'disabled' : ''}`}>
                                         <i className="fa fa-plus" />
                                       </span>
                                     </div>
@@ -704,13 +754,13 @@ const [buyadd,setBuyadd]=useState(0)
                                 </span>
                               </div>
                               <div>
-                                { val.grams_add > 1 ? (<s> {numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')}99</s> ):(
-                                 numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')
+                                {val.grams_add > 1 ? (<s> {numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')}99</s>) : (
+                                  numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')
                                 )}
-                                <div> { val.grams_add > 0 ? (
+                                <div> {val.grams_add > 0 ? (
                                   numeral(((val.price_sale * val.grams_add) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')
-                                ):''}</div>
-                                </div>
+                                ) : ''}</div>
+                              </div>
                             </div>
                           </div>
                         )
@@ -722,8 +772,6 @@ const [buyadd,setBuyadd]=useState(0)
                         </>
                       )
                     }
-
-
                   </div>
                   {/* </div> */}
 
@@ -773,36 +821,69 @@ const [buyadd,setBuyadd]=useState(0)
         </div>
       </div>
 
-      
+
       {print && (
         <div id="printableArea">
           <Invoice invoice={invoice} />
         </div>
       )}
 
-      <Modal show={show} backdrop="static" centered  >
-        <Modal.Body className='p-4'>
-          <div className="row pt-3">
-            <div className="col-sm-12 ">
-              <form onSubmit={heandleSearch}>
-                <div className=" text-center mb-4">
-                  <img src="/assets/img/user/user.png" alt="" className="mw-100 w-120px rounded-pill " />
-                </div>
-                <div className="from-group text-center mb-4">
-                  <label htmlFor="" className='form-label fs-16px'>ລະຫັດພະນັກງານ</label>
-                  <input type="text" ref={inputRef} autoFocus onChange={(e) => headleCheng('userSale_id', e.target.value)} className='form-control form-control-lg fs-18px border-blue text-center my-input' placeholder='|||||||||||||||||||||||||||||||||' required />
-                </div>
-              </form>
-              <p className='text-center mb-2'><a href='home' className='text-h-red'><i className="fa-solid fa-hand-point-left"></i>  ຍ້ອນກັບ</a></p>
-              {error === true && (
-                <div className="alert alert-warning alert-dismissible fade show mb-0">
-                  <i className="fa-solid fa-circle-exclamation fa-xl"></i> ລະຫັດພະນັກງານບໍ່ຖຶກຕ້ອງ
-                  {/* <button type="button" className="btn-close" data-bs-dismiss="alert"></button> */}
-                </div>
-              )}
+      <Modal show={show} backdrop="static" centered onHide={handleClose}>
+
+      {checkUser === 3 ? (<>
+        <Modal.Header  className='py-1' closeButton>
+          <Modal.Title>ສະແກນຄີວອາໂຄດ</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='p-0'>
+        {checkUser === 3 && (
+            <QrReader
+              delay={300}
+              style={{ width: '100%' }}
+              onError={handleErrorWebCam}
+              onScan={handleScanWebCam}
+            />
+        )}
+            </Modal.Body>
+          </>) : (
+        <Modal.Body className='p-3'>
+            <div className="row pt-3">
+              <div className="col-sm-12 ">
+                <form onSubmit={heandleSearch}>
+                  <div className=" text-center mb-4">
+                    <img src="/assets/img/user/user.png" alt="" className="mw-100 w-120px rounded-pill " />
+                  </div>
+                  <div className="from-group text-center mb-4">
+                    <label htmlFor="" className='form-label fs-16px'>ລະຫັດພະນັກງານ</label>
+                    {checkUser === 1 ? (
+                      <InputGroup inside size='lg'>
+                        <InputGroup.Button onClick={() => checkUseFrom(2)}>
+                          <i className='fas fa-user text-red' />
+                        </InputGroup.Button>
+                        <Input size='lg' ref={inputRef} autoFocus onChange={(e) => headleCheng('userSale_id', e)} className='text-center' placeholder='||||||||||||||||||||||||||||' required />
+                        {/* <InputGroup.Button onClick={() => checkUseFrom(3)}>
+                          <i class="fa-solid fa-camera" />
+                        </InputGroup.Button> */}
+                      </InputGroup>
+                    ) : checkUser === 2 && (
+                      <div className='row' >
+                        <Select size='lg' ref={inputRef} options={itemStaff} onChange={(e) => handleChangeStaff(e.value)} className='text-start col-11' placeholder='ເລອກພະນັກງານ' required />
+                        <button type='button' onClick={() => checkUseFrom(1)} class="btn btn-red col-1" ><i class="fa-solid fa-xmark mt-1 fs-5" /></button>
+                      </div>
+                    )}
+
+                  </div>
+
+                </form>
+                <p className='text-center mb-2'><a href='home' className='text-h-red'><i className="fa-solid fa-hand-point-left"></i>  ຍ້ອນກັບ</a></p>
+                {error === true && (
+                  <div className="alert alert-warning alert-dismissible fade show mb-0">
+                    <i className="fa-solid fa-circle-exclamation fa-xl"></i> ລະຫັດພະນັກງານບໍ່ຖຶກຕ້ອງ
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
         </Modal.Body>
+          )}
       </Modal>
 
       <Modal show={showpay} size='xl' backdrop="static" className='modal-pos' centered  >
@@ -868,14 +949,14 @@ const [buyadd,setBuyadd]=useState(0)
                           <td width={'3%'} className='with-img dt-type-numeric'>
                             <img src={val.file_image !== '' ? img + 'pos/' + val.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' alt="" />
                           </td>
-                          <td>{val.tile_name + ' ' + val.qty_baht + '  ' + val.option_name} {val.qty_add >0 ?(<span className='text-green'>+ {val.qty_add}</span>):('')}</td>
+                          <td>{val.tile_name + ' ' + val.qty_baht + '  ' + val.option_name} {val.qty_add > 0 ? (<span className='text-green'>+ {val.qty_add}</span>) : ('')}</td>
                           <td>{val.order_qty + ' / ' + val.unite_name}</td>
                           <td className='text-end'>{(val.qty_baht * val.qty_grams)} g</td>
                           <td className='text-end'>+ {numeral(val.price_pattern * val.order_qty * val.qty_baht).format('0,00')}</td>
                           <td className='text-end'> {numeral(
-                (val.price_sale * (val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty) + 
-                (val.price_pattern * val.order_qty * val.qty_baht)
-              ).format('0,00')}</td>
+                            (val.price_sale * (val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty) +
+                            (val.price_pattern * val.order_qty * val.qty_baht)
+                          ).format('0,00')}</td>
                         </tr>
                       )}
                       <tr className='fs-16px'>
@@ -954,13 +1035,13 @@ const [buyadd,setBuyadd]=useState(0)
                   <input type="text" class="form-control w-40px fw-bold  px-0 mx-2 text-center border-0" name="qty" value={orderQty > 0 ? orderQty : '1'}
                     onChange={(e) => setOrderQty(Math.max(parseInt(e.target.value), 1))} />
                   <button type='button' onClick={() => setOrderQty(prevQty => parseInt(prevQty) + 1)} class="btn btn-green btn-sm d-flex align-items-center"><i class="fa fa-plus"></i></button>
-                  <button type='button' onClick={handleToggle} class="btn btn-default btn-sm d-flex align-items-center ms-3 me-2"> {isVisible ===true ? (<i class="fa-solid fa-minus text-red" /> ):(  <i class="fa-solid fa-ellipsis-vertical" />)} </button>
-                  {isVisible && <InputGroup inside size="sm" style={{width:'160px'}} >
+                  <button type='button' onClick={handleToggle} class="btn btn-default btn-sm d-flex align-items-center ms-3 me-2"> {isVisible === true ? (<i class="fa-solid fa-minus text-red" />) : (<i class="fa-solid fa-ellipsis-vertical" />)} </button>
+                  {isVisible && <InputGroup inside size="sm" style={{ width: '160px' }} >
                     <InputGroup.Addon>ຊື້ເພີ່ມ</InputGroup.Addon>
-                    <InputNumber size="sm" onChange={(e)=>setBuyadd(e)} defaultValue="0"  />
+                    <InputNumber size="sm" onChange={(e) => setBuyadd(e)} defaultValue="0" />
                   </InputGroup>}
                 </div>
-                
+
               </div>
               <hr />
               <div class="mb-3">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import { SelectPicker, Placeholder } from 'rsuite';
+import { SelectPicker, Placeholder, Input } from 'rsuite';
 import { useOption, useTitle, useZone,useWeight } from '../../utils/selectOption';
 import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
@@ -17,25 +17,24 @@ function StockSales() {
     }
 
 
-    const [idpos, setIdpos] = useState(null);
-
-    const itemWeight = useWeight(idpos);
+    // const [idpos, setIdpos] = useState(null);
+    // const itemWeight = useWeight(idpos);
 
     const [datasearch, setDataSarch] = useState({
         type_id_fk: '',
         zone_id_fk: '',
         tiles_id_fk: '',
         option_id_fk: '',
-        product_id_fk:''
+        qty_baht:''
     });
 
     const handleChange = (name, value) => {
         setDataSarch({
             ...datasearch, [name]: value
         })
-        if (name === 'tiles_id_fk') {
-            setIdpos(value);
-        }
+        // if (name === 'tiles_id_fk') {
+        //     setIdpos(value);
+        // }
     };
 
 
@@ -46,12 +45,13 @@ function StockSales() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [filterName, setFilterName] = useState([])
-    const [itemPorduct, setItemPorduct] = useState([]);
+    const [itemProduct, setItemProduct] = useState([]);
+    const totalQtyBaht = itemProduct.reduce((sum, item) => sum + parseFloat(item.quantity), 0);
     const fetchStockPorduct = async () => {
         try {
             const response = await axios.post(api + 'posd/stock', datasearch);
             const jsonData = response.data;
-            setItemPorduct(jsonData);
+            setItemProduct(jsonData);
             setFilterName(jsonData);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -61,8 +61,7 @@ function StockSales() {
     }
     // const [filter, setFilter] = useState('');
     const Filter = (event) => {
-        // setFilter(event)
-        setItemPorduct(filterName.filter(n => n.tile_name.toLowerCase().includes(event)))
+        setItemProduct(filterName.filter(item => item.tile_name.toLowerCase().includes(event)));
     }
 
 
@@ -82,16 +81,16 @@ function StockSales() {
     };
 
     const pages = [];
-    for (let i = 1; i <= Math.ceil(itemPorduct.length / itemsPerPage); i++) {
+    for (let i = 1; i <= Math.ceil(itemProduct.length / itemsPerPage); i++) {
         pages.push(i);
     }
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = itemPorduct.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = itemProduct.slice(indexOfFirstItem, indexOfLastItem);
 
     const [i, setI] = useState(1);
-    const qtyItem = itemPorduct.length;
+    const qtyItem = itemProduct.length;
     const renderPageNumbers = pages.map((number) => {
         if (number < maxPageNumberLimit + 1 && number > minPageNumberLimit) {
             return (
@@ -127,7 +126,7 @@ function StockSales() {
 
     useEffect(() => {
         fetchStockPorduct();
-    }, [idpos])
+    }, [])
     return (
         <>
             <div id="content" class="app-content px-3">
@@ -150,7 +149,7 @@ function StockSales() {
                             </div>
                             <div className="col-sm-2 form-group mb-2">
                                 <label htmlFor="" className='form-label'>ຈຳນວນນ້ຳໜັກ</label>
-                                <SelectPicker data={itemWeight} onChange={(e) => handleChange('product_id_fk', e)} block placeholder="ເລືອກ" />
+                                <Input type='number' onChange={(e) => handleChange('qty_baht', e)} block placeholder="ນ້ຳໜັກ" />
                             </div>
                             <div className="col-sm-2 form-group mb-2">
                                 <label htmlFor="" className='form-label'>ຫົວໜວຍນ້ຳໜັກ</label>
@@ -179,7 +178,7 @@ function StockSales() {
                                     ລາຍການ
                                 </div>
                                 <div className="pagination pagination-sm mb-0 ms-auto justify-content-center">
-                                    <input type="search" onChange={(event) => Filter(event.target.value)} className='form-control' />
+                                    <input type="search" onChange={(event) => Filter(event.target.value)} className='form-control' placeholder='ຄົ້ນຫານ້ຳໜັກ' />
                                 </div>
                             </div>
                             <table className="table table-striped table-bordered align-middle w-100 text-nowrap">
@@ -203,7 +202,8 @@ function StockSales() {
                                     {
                                         isLoading === true ? <Placeholder.Grid rows={7} columns={6} active /> :
                                             currentItems.length > 0 ? (
-                                                currentItems.map((item, key) => (
+                                                <>
+                                               { currentItems.map((item, key) => (
                                                     <tr key={key}>
                                                         <td className='text-center' width='1%'>{key + 1}</td>
                                                         <td className='text-center with-img dt-type-numeric' width='5%'>
@@ -231,7 +231,13 @@ function StockSales() {
                                                         </td>
 
                                                     </tr>
-                                                ))
+                                                ))}
+                                                <tr>
+                                                    <td className='text-end' colSpan={8}>ລວມຈຳນວນທັງໝົດ</td>
+                                                    <td className='text-center'><span className='fs-16px text-red'>{totalQtyBaht} </span> (ຈ/ນ)</td>
+                                                    <td colSpan={3}></td>
+                                                </tr>
+                                                </>
                                             ) : (
                                                 <tr>
                                                     <td colSpan="12" className="text-center text-danger">ບໍ່ມີການບິນທຶກຂໍ້ມູນ</td>
