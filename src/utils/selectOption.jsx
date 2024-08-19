@@ -186,8 +186,7 @@ export function useZone() {
     showZoneSale();
   }, []); 
 
-  const data = itemZone.map(item => ({ label: item.zone_name, value: item.zone_Id }));
-
+  const data = itemZone.map(item => ({ label: item.zone_name, value: item.zone_Id }))
   return data;
 }
 
