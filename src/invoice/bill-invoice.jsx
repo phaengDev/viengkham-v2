@@ -75,7 +75,7 @@ return (
           ))}
             <tr>
                 <td colspan="2" class="sum-up line tx-l">ລວມທັງໝົດ (Subtota) :</td>
-                <td class="line price">{numeral(data.balance_total).format('0,00')}</td>
+                <td class="line price">{numeral(data.balance_total).format('0,00')} </td>
             </tr>
             <tr>
                 <td colspan="2" class="sum-up tx-l">ອມພ : %</td>
@@ -83,20 +83,20 @@ return (
             </tr>
             <tr>
                 <th colspan="2" class="sum-up bottom tx-l">ລວມເປັນເງິນ :</th>
-                <th class="price tx-r bottom">{numeral(data.balance_total).format('0,00')}</th>
+                <th class="price tx-r bottom">{numeral(data.balance_total).format('0,00')} ₭</th>
             </tr>
             <tr>
                 <th colspan="2" class="sum-up  tx-l">ຮັບເງິນສົດ :</th>
-                <th class="price tx-r ">{numeral(data.balance_cash).format('0,00')}</th>
+                <th class="price tx-r ">{numeral(data.balance_cash).format('0,00')} {data.genus}</th>
             </tr>
             <tr>
                 <th colspan="2" class="sum-up  tx-l">ຮັບເງິນໂອນ :</th>
-                <th class="price tx-r ">{numeral(data.balance_transfer).format('0,00')}</th>
+                <th class="price tx-r ">{numeral(data.balance_transfer).format('0,00')} {data.genus}</th>
             </tr>
             {data.balance_return > 0? (
             <tr>
                 <th colspan="2" class="sum-up bottom tx-l">ເງິນທອນ :</th>
-                <th class="price tx-r bottom">{numeral(data.balance_return).format('0,00')}</th>
+                <th class="price tx-r bottom">{numeral(data.balance_return).format('0,00')} ₭</th>
             </tr>
             ):''}
             <tr>

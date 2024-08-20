@@ -57,6 +57,31 @@ function ReportsaleDaily() {
     setItemData(filterName.filter(n => n.sale_billNo.toLowerCase().includes(event)))
   }
 
+  // ================================
+  const sumData = itemData.reduce((acc, item) => {
+    const currency = item.currency_name;
+    const genus = item.genus;
+    if (!acc[currency]) {
+        acc[currency] = {
+            balance_total:0,
+            balance_totalpay: 0,
+            balance_cash: 0,
+            balance_transfer: 0,
+            balance_return: 0,
+            genus: genus, // Capture genus here
+        };
+    }
+
+    acc[currency].balance_totalpay += parseFloat(item.balance_totalpay);
+    acc[currency].balance_cash += parseFloat(item.balance_cash);
+    acc[currency].balance_transfer += parseFloat(item.balance_transfer);
+    acc[currency].balance_return += parseFloat(item.balance_return);
+    acc[currency].balance_total += parseFloat(item.balance_total);
+    return acc;
+}, {});
+const formatNumber = (num) => numeral(num).format('0,00');
+
+//======================================
 const [detail,setDetail]=useState([]);
 const [billNo,setBillNo]=useState('');
 const [id, setId] = useState('');
@@ -113,7 +138,7 @@ const exportToExcel = () => {
                 <label htmlFor="" className='form-label'>ພະນັກງານຂາຍ</label>
                 <SelectPicker data={itemStaff} onChange={(e) => handleChange('staffId', e)} block placeholder="ເລືອກ" />
               </div>
-              <div className='col-sm-4 col-lg-2'>
+              <div className='col-sm-4 col-lg-3'>
                 <label htmlFor="" className='form-label'>ສະຖານະ</label>
                 <SelectPicker data={datastt} onChange={(e) => handleChange('statusOff', e)} block placeholder="ເລືອກ" />
               </div>
@@ -150,7 +175,8 @@ const exportToExcel = () => {
                     <th className='text-center'>ວັນທີຂາຍ</th>
                     <th className='text-center'>ບິນເລກທີ</th>
                     <th className=''>ພະນັກງານຂາຍ</th>
-                    <th className='text-end'>ລວມຍອດທັງໝົດ</th>
+                    <th className='text-end'>ລວມຍອດທັງໝົດ ກີບ</th>
+                    <th className='text-end'>ລວມຍອດທັງໝົດທີ່ຈ່າຍ</th>
                     <th className='text-end'>ຮັບເງິນສົດ</th>
                     <th className='text-end'>ຮັບເງິນໂອນ</th>
                     <th className='text-end'>ຍອດຮັບທັງໝົດ</th>
@@ -175,11 +201,12 @@ const exportToExcel = () => {
                               <td className='text-center'>{moment(val.sale_date).format('DD/MM/YYYY hh:mm')}</td>
                               <td className='text-center'><span role='button' className='text-h-blue' onClick={()=>handleView(val.sale_uuid,val.sale_billNo)} >{val.sale_billNo}</span> </td>
                               <td>{val.first_name + ' ' + val.last_name}</td>
-                              <td className='text-end'>{numeral(val.balance_total).format('0,00')}</td>
-                              <td className='text-end'>{numeral(val.balance_cash).format('0,00')}</td>
-                              <td className='text-end'>{numeral(val.balance_transfer).format('0,00')}</td>
-                              <td className='text-end'>{numeral(val.balance_payment).format('0,00')}</td>
-                              <td className='text-end'>{numeral(val.balance_return).format('0,00')}</td>
+                              <td className='text-end'>{numeral(val.balance_total).format('0,00')} ₭</td>
+                              <td className='text-end'>{numeral(val.balance_totalpay).format('0,00')} {val.genus}</td>
+                              <td className='text-end'>{numeral(val.balance_cash).format('0,00')} {val.genus}</td>
+                              <td className='text-end'>{numeral(val.balance_transfer).format('0,00')} {val.genus}</td>
+                              <td className='text-end'>{numeral(val.balance_payment).format('0,00')} </td>
+                              <td className='text-end'>{numeral(val.balance_return).format('0,00')} ₭</td>
                               <td>{val.cus_fname + ' ' + val.cus_lname}</td>
                               <td>{val.cus_tel}</td>
                               <td>{val.sale_remark}</td>
@@ -192,22 +219,23 @@ const exportToExcel = () => {
                       ) : (
                         <tr>
                           <td colSpan={14} className='text-center text-danger'>ບໍ່ລາຍການຂາຍທີ່ທ່ານຊອກຫາ</td>
-
                         </tr>
                       )}
                 </tbody>
                 <tfoot>
-                  {itemData.length > 0 ? (
-                <tr>
-                            <td colSpan={4} className='text-end'>ລວມຍອດທັງໝົດ</td>
-                            <td className='text-end bg-dark text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat(val.balance_total), 0)).format('0,00')}</td>
-                            <td className='text-end bg-green text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat(val.balance_cash), 0)).format('0,00')}</td>
-                            <td className='text-end bg-danger text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat(val.balance_transfer), 0)).format('0,00')}</td>
-                            <td className='text-end bg-blue text-white'>{numeral(itemData.reduce((acc, val) => acc + parseFloat(val.balance_payment), 0)).format('0,00')}</td>
-                            <td className='text-end bg-orange'>{numeral(itemData.reduce((acc, val) => acc + parseFloat(val.balance_return), 0)).format('0,00')}</td>
+                  {itemData.length > 0 && (
+                     Object.keys(sumData).map((currency, key) => (
+                      <tr key={key}>
+                            <td colSpan={5} className='text-end'>ລວມຍອດທັງໝົດ ({currency})</td>
+                            <td className='text-end'>{formatNumber(sumData[currency].balance_totalpay)} {sumData[currency].genus}</td>
+                            <td className='text-end'>{formatNumber(sumData[currency].balance_cash)} {sumData[currency].genus}</td>
+                            <td className='text-end'>{formatNumber(sumData[currency].balance_transfer)} {sumData[currency].genus}</td>
+                            <td className='text-end'>{formatNumber(0)}</td>
+                            <td className='text-end'>{formatNumber(sumData[currency].balance_return)} ₭</td>
                             <td colSpan={5}></td>
                           </tr>
-                          ):''}
+                     ))
+                          )}
                 </tfoot>
               </table>
             </div>

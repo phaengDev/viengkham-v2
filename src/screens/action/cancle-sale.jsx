@@ -254,10 +254,10 @@ const [role,setRole]=useState({
                         <th className='text-center'>ວັນທີຍົກເລີກ</th>
                         <th className='text-center'>ບິນເລກທີ</th>
                         <th className='text-end'>ລວມຍອດທັງໝົດ</th>
-                    <th className='text-end'>ຮັບເງິນສົດ</th>
-                    <th className='text-end'>ຮັບເງິນໂອນ</th>
-                    <th className='text-end'>ຍອດຮັບທັງໝົດ</th>
-                    <th className='text-end'>ຍອດເງິນທອນ</th>
+                        <th className='text-end'>ຮັບເງິນສົດ</th>
+                        <th className='text-end'>ຮັບເງິນໂອນ</th>
+                        <th className='text-end'>ຍອດຮັບທັງໝົດ</th>
+                        <th className='text-end'>ຍອດເງິນທອນ</th>
                         <th className=''>ພະນັກງານຂາຍ</th>
                         <th className=''>ຊື່ລູກຄ້າ</th>
                         <th className=''>ເບີໂທລະສັບ</th>
@@ -400,7 +400,7 @@ const [role,setRole]=useState({
                                 <td className='text-center'>{key + 1}</td>
                                 <td>{item.tile_name}</td>
                                 <td className='text-center'>{item.qty_baht + ' ' + item.option_name}</td>
-                                <td className='text-center'>{item.order_qty + ' ' + item.tile_name}</td>
+                                <td className='text-center'>{item.order_qty + ' ' + item.unite_name}</td>
                                 <td className='text-end'>{numeral(item.price_sale).format('0,00')}</td>
                                 <td className='text-end'>{numeral(item.price_pattern).format('0,00')}</td>
                                 <td className='text-end'>{numeral(item.balance_total).format('0,00')}</td>
@@ -426,20 +426,20 @@ const [role,setRole]=useState({
                       <table className='w-100'>
                         <tr >
                           <td className='border-1 text-center' width={'33.33%'}>ລວມຍອດເງິນທັງໝົດ
-                            <h5>{numeral(data.balance_total).format('0,00')}</h5>
+                            <h5>{numeral(data.balance_total).format('0,00')}  ₭</h5>
                           </td>
                           <td className='border-1 text-center' width={'33.33%'}>ລວມຈ່າຍເງິນສົດ
-                            <h5>{numeral(data.balance_cash).format('0,00')}</h5>
+                            <h5>{numeral(data.balance_cash).format('0,00')} {data.genus}</h5>
                           </td>
                           <td className='border-1 text-center' width={'33.33%'}>ລວມຈ່າຍເງິນໂອນ
-                            <h5>{numeral(data.balance_transfer).format('0,00')}</h5>
+                            <h5>{numeral(data.balance_transfer).format('0,00')} {data.genus}</h5>
                           </td>
                         </tr>
                         {data.balance_return > 0 ? (
                           <tr>
                             <td colSpan={3} className='text-end border-1 text-danger'>
                               ເງິນທອນ
-                              <h5 className=''>{numeral(data.balance_return).format('0,00')} </h5>
+                              <h5 className=''>{numeral(data.balance_return).format('0,00')} ₭</h5>
                             </td>
                           </tr>
                         ) : ('')}

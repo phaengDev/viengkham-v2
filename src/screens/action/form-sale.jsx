@@ -11,10 +11,15 @@ import Swal from 'sweetalert2';
 import Select from 'react-select'
 import { useStaff } from '../../utils/selectOption';
 import { QrReader } from 'react-qr-reader';
+
+import { RadioTile, RadioTileGroup, useMediaQuery } from 'rsuite';
+import { useRate } from '../../utils/selectOption';
 function FormSale() {
 
   const api = Config.urlApi;
   const img = Urlimage.url;
+
+  const {dataList}=useRate()
   // const navigate = useNavigate();
   // const headleBack = () => {
   //   navigate(`/home`);
@@ -35,11 +40,10 @@ function FormSale() {
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-
   }
   const [showpay, setShowPay] = useState(false);
   const [show, setShow] = useState(true);
-  const handleClose = () =>{
+  const handleClose = () => {
     setCheckUser(1)
     // setShow(false);
   }
@@ -56,6 +60,7 @@ function FormSale() {
     })
   }
 
+  const [staffId, setStaffId] = useState('')
   const [data, setData] = useState({
     first_name: '',
     last_name: '',
@@ -88,7 +93,6 @@ function FormSale() {
   };
 
 
-  const [staffId, setStaffId] = useState('')
   const [error, setError] = useState(false);
   const heandleSearch = (e) => {
     e.preventDefault();
@@ -152,9 +156,7 @@ function FormSale() {
       // setIsLoading(false);
     }
   }
-  const [filter, setFilter] = useState('');
   const Filter = (event) => {
-    setFilter(event)
     setItemProduct(filterName.filter(n =>
       n.tile_name.toLowerCase().includes(event.toLowerCase()) || // Filter by tile_name
       n.code_id.toLowerCase().includes(event.toLowerCase()) // Filter by code_id
@@ -217,6 +219,7 @@ function FormSale() {
     setIsVisible(false);
     setBuyadd(0)
   }
+
   const [values, setValues] = useState({
     type_id_fk: '',
     title_id_fk: '',
@@ -256,8 +259,7 @@ function FormSale() {
       staff_id_fk: data.staff_uuid,
       user_id_fk: userId
     };
-    // console.log(dataOrder);
-    // return
+
     if (dataps.quantity <= 0) {
       return showMessage('ສິນຄ້າໝົດແລ້ວ ກະລຸນາເລືອກໂຊນອື່ນ', 'error');
     }
@@ -288,9 +290,12 @@ function FormSale() {
   const [totalBalance, setTotalBalance] = useState(0);
   const [totalPattern, setTotalPattern] = useState(0);
   const [balanceTotal, setBalanceTotal] = useState(0)
+
+  const [totalBalancePay,setTotalBalancePay]=useState(0)
+
   const fetchItemCart = async () => {
     try {
-      const response = await axios.get(api + 'order/itemcart/' + data.staff_uuid);
+      const response = await axios.get(api + 'order/itemcart/' + staffId);
       const jsonData = response.data;
       setItemCart(jsonData);
       const items = jsonData.map(item => ({
@@ -315,11 +320,16 @@ function FormSale() {
       const bnPattern = jsonData.reduce((acc, val) => acc + parseFloat(val.price_pattern * val.order_qty * val.qty_baht), 0);
       setTotalBalance(balance);
       setTotalPattern(bnPattern);
+
       setBalanceTotal(balance + bnPattern);
+      setTotalBalancePay(balance + bnPattern);
+
       setOrder(prevOrder => ({
         ...prevOrder,
         staff_id_fk: staffId,
-        items: items
+        items: items,
+        balance_total:balance + bnPattern,
+        balance_totalpay:balance + bnPattern
       }));
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -329,7 +339,6 @@ function FormSale() {
   const handleGetSale = (index) => {
     setShowPay(index);
   };
-
 
   //=============================
 
@@ -351,9 +360,13 @@ function FormSale() {
     balance_transfer: '0',
     balance_payment: '0',
     balance_return: '0',
+    currency_id_fk:22001,
+    rate_price:1,
+    balance_totalpay:0,
     items: []
   });
   const [search, setSearch] = useState(false)
+
   const handleChange = (name, value) => {
     setOrder({
       ...order, [name]: value
@@ -363,17 +376,19 @@ function FormSale() {
       setItemCust([])
     } else {
       setSearch(false);
-
     }
     setDatacust({
       cusTel: value
     });
   }
 
+
   //==================== ບັນທຶກການຈ່າຍ
   const [print, setPrint] = useState(false);
   const [invoice, setInvoice] = useState('');
+
   const handlePayment = () => {
+    // return;
     axios.post(api + 'order/payment', order)
       .then(function (res) {
         if (res.status === 200) {
@@ -388,14 +403,14 @@ function FormSale() {
           setShowPay(false);
           // handleModal(true);
           // showMessage(res.data.message, 'success');
-          setCustom({
-            customId: '',
-            cus_fname: '',
-            cus_lname: '',
-            cus_tel: '',
-            cus_address: '',
-            sale_remark: '',
-          });
+          // setCustom({
+          //   customId: '',
+          //   cus_fname: '',
+          //   cus_lname: '',
+          //   cus_tel: '',
+          //   cus_address: '',
+          //   sale_remark: '',
+          // });
           setOrder({
             bill_shop: '',
             alance_total: '0',
@@ -404,6 +419,9 @@ function FormSale() {
             balance_transfer: '0',
             balance_payment: '0',
             balance_return: '0',
+            rate_price:1,
+            balance_totalpay:0,
+            currency_id_fk:22001,
           })
           setBalanceReturn(0);
           setPrint(true);
@@ -415,23 +433,56 @@ function FormSale() {
         Alert.errorData('ການດຳເນິນງານບໍ່ສຳເລັດ')
       });
   }
+
   //==========================
   const [balanceCash, setBalanceCash] = useState(0);
   const [balanceTransfer, setBalanceTransfer] = useState(0);
-  const balancePayment = balanceCash + balanceTransfer;
+  const [balanceReturn, setBalanceReturn] = useState(0);
+  const [ratePrice,setRatePrice]=useState(1)
+  // const balancePayment = balanceCash + balanceTransfer;
+  const [balancePayment, setBalancePayment] = useState(0); // Assuming this is set elsewhere in your code
+  
+  
+const handleCashChange = (name, value) => {
+  const newAmount = parseFloat(value.replace(/,/g, ''));
+  setBalanceCash(isNaN(newAmount) ? 0 : newAmount);
 
-  const [balanceReturn, setBalanceReturn] = useState(0)
-  const handleCashChange = (name, value) => {
-    const newCash = parseFloat(value.replace(/,/g, ''));
-    setBalanceCash(isNaN(newCash) ? 0 : parseInt(newCash));
-    setOrder({
-      ...order, [name]: value
-    });
-  };
+  setBalancePayment(newAmount+parseFloat(balanceTransfer));
 
+  if ((newAmount+balanceTransfer) > totalBalancePay) {
+    setBalanceReturn((newAmount+balanceTransfer)-totalBalancePay);
+  } else {
+    setBalanceReturn(0);
+  }
+
+  if (newAmount >= totalBalancePay) {
+    setBalanceTransfer(0);
+    setCheckOnly('readOnly');
+    setOrder(prevOrder => ({
+      ...prevOrder, balance_transfer: 0,
+    }));
+  } else {
+    setCheckOnly('');
+  }
+
+  setOrder(prevOrder => ({
+    ...prevOrder, [name]: value,
+  }));
+
+};
+//================
   const handleTransferChange = (name, value) => {
     const newTransfer = parseFloat(value.replace(/,/g, ''));
     setBalanceTransfer(isNaN(newTransfer) ? 0 : parseInt(newTransfer));
+    setBalancePayment(newTransfer+parseFloat(balanceCash));
+
+
+    if (newTransfer+parseFloat(balanceCash) > totalBalancePay) {
+      setBalanceReturn(newTransfer+parseFloat(balanceCash)-totalBalancePay);
+    } else {
+      setBalanceReturn(0);
+    }
+
     setOrder({
       ...order, [name]: value
     });
@@ -453,29 +504,32 @@ function FormSale() {
         setActiveShow('show')
       } else {
         setActiveShow('');
-        setCustom({
-          customId: '',
-          cus_fname: '',
-          cus_lname: '',
-          cus_address: '',
-        })
+        setOrder({
+          ...order,
+          customId:'',
+          cus_fname:'',
+          cus_lname:'',
+          cus_tel:'',
+          cus_address:'',
+        });
       }
     } catch (error) {
+      setOrder({
+        ...order,
+        customId:'',
+        cus_fname:'',
+        cus_lname:'',
+        cus_tel:'',
+        cus_address:'',
+      });
       console.error('Error fetching data:', error);
     }
   };
 
 
-  const [custom, setCustom] = useState({
-    customId: '',
-    cus_fname: '',
-    cus_lname: '',
-    cus_tel: '',
-    cus_address: ''
-  })
-
   const handleUsecust = (item) => {
-    setCustom({
+    setOrder({
+      ...order,
       customId: item.cus_uuid,
       cus_fname: item.cus_fname,
       cus_lname: item.cus_lname,
@@ -525,14 +579,14 @@ function FormSale() {
   // ===================== \\
 
   const toaster = useToaster();
-  const [placement, setPlacement] = useState('topEnd');
+  // const [placement, setPlacement] = useState('topEnd');
   const showMessage = (messName, notifi) => {
     const message = (
       <Message showIcon type={notifi} closable>
         <strong>ຢືນຢັນ! </strong> {messName}
       </Message>
     );
-    toaster.push(message, { placement });
+    toaster.push(message, { placement:'topEnd' });
   };
 
   const [checkOnly, setCheckOnly] = useState('');
@@ -543,27 +597,17 @@ function FormSale() {
   }
 
 
-
-
   const [isVisible, setIsVisible] = useState(false);
   const handleToggle = () => {
     setIsVisible(!isVisible);
     setBuyadd(0)
   };
-  //======================
-  useEffect(() => {
 
-    if (balancePayment >= balanceTotal) {
-      setBalanceReturn(balancePayment - balanceTotal);
-    } else {
-      setBalanceReturn(0);
-    }
-    if (balanceCash >= balanceTotal) {
-      setCheckOnly('readOnly');
-      setBalanceTransfer(0)
-    } else {
-      setCheckOnly('');
-    }
+
+  //======================
+
+
+  useEffect(() => {
     fetchData()
     fetchStockPorduct();
     fetchZone();
@@ -581,15 +625,15 @@ function FormSale() {
       document.removeEventListener("keypress", handleKeyPress);
     };
 
-  }, [datasearch, userId, barnchId, data, staffId, balancePayment, totalBalance, balanceCash, checkOnly, values])
+  }, [datasearch, userId, barnchId, data,  values])
 
   const [checkUser, setCheckUser] = useState(1)
 
   const checkUseFrom = (index) => {
     setCheckUser(index)
   }
-  const [scanResultWebCam, setScanResultWebCam] = useState('');
 
+  const [scanResultWebCam, setScanResultWebCam] = useState('');
   const handleErrorWebCam = (error) => {
     console.log(error);
   }
@@ -598,6 +642,39 @@ function FormSale() {
       setScanResultWebCam(result);
     }
   }
+ 
+
+  //=============== ນຳໃຊ້ເລດເງິນ 
+  const [isInline] = useMediaQuery('xl'); 
+  const [activeRate,setActiveRate]=useState(22001);
+  const [currencyName,setCurrencyName]=useState('LA');
+const [genus,setGenus]=useState('₭');
+  const handleRateChange = (newValue) => {
+    setActiveRate(newValue);
+    const useRate = dataList.find(item => item.currency_id === newValue);
+    if (useRate) {
+      const updatedTotalBalancePay = balanceTotal / useRate.reate_price;
+      setTotalBalancePay(updatedTotalBalancePay);
+      setGenus(useRate.genus);
+      setCurrencyName(useRate.currency_name);
+      setRatePrice(useRate.reate_price)
+      setOrder({
+        ...order, currency_id_fk: newValue,
+        rate_price:useRate.reate_price,
+        balance_totalpay:updatedTotalBalancePay,
+        balance_cash:0,
+        balance_transfer:0,
+        balance_return:0
+      });
+
+    setBalanceReturn(0)
+    setBalanceTransfer(0)
+    setBalanceCash(0)
+    }
+
+  };
+
+
   return (
     <>
       <div id="app" className="app app-content-full-height app-without-sidebar app-without-header">
@@ -689,10 +766,8 @@ function FormSale() {
               <div className="h-100 d-flex flex-column p-0">
                 <div className="pos-sidebar-header ">
                   <div className="back-btn">
-                    <button
-                      type="button"
-                      data-dismiss-className="pos-sidebar-mobile-toggled"
-                      data-target="#pos"
+                    <button type="button"
+                      data-dismiss-class="pos-sidebar-mobile-toggled" data-target="#pos" 
                       className="btn border-0"
                     >
                       <i className="fa fa-chevron-left" />
@@ -754,7 +829,7 @@ function FormSale() {
                                 </span>
                               </div>
                               <div>
-                                {val.grams_add > 1 ? (<s> {numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')}99</s>) : (
+                                {val.grams_add > 1 ? (<s> {numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')}</s>) : (
                                   numeral(((val.price_sale * val.qty_grams) * val.order_qty) + ((val.price_pattern * val.order_qty) * val.qty_baht)).format('0,00')
                                 )}
                                 <div> {val.grams_add > 0 ? (
@@ -801,7 +876,7 @@ function FormSale() {
                     <button type='button' className="btn btn-green rounded-3 text-center me-10px w-70px" >
                       <i className="fa fa-receipt d-block fs-18px my-1" /> ພີມບິນ
                     </button>
-                    <button type='button' onClick={() => handleGetSale(true)} className={`btn btn-theme rounded-3 text-center flex-1 ${itemcart.length > 0 ? '' : 'disabled'}`}  >
+                    <button type='button' onClick={() => handleGetSale(true)} className={`btn btn-blue rounded-3 text-center flex-1 ${itemcart.length > 0 ? '' : 'disabled'}`}  >
                       <i className="fa-solid fa-hand-holding-dollar d-block fs-18px my-1"></i>
                       ຮັບເງິນ
                     </button>
@@ -811,13 +886,11 @@ function FormSale() {
             </div>
           </div>
 
-          <span role='button'
-            className="pos-mobile-sidebar-toggler"
-            data-toggle-className="pos-sidebar-mobile-toggled"
-            data-target="#pos" >
+          <a href='#'
+            class="pos-mobile-sidebar-toggler" data-toggle-class="pos-sidebar-mobile-toggled" data-target="#pos" >
             <i className="fa-solid fa-cart-plus fs-25px iconify display-6" ></i>
             <span className="badge">{itemcart.length}</span>
-          </span>
+          </a>
         </div>
       </div>
 
@@ -829,23 +902,22 @@ function FormSale() {
       )}
 
       <Modal show={show} backdrop="static" centered onHide={handleClose}>
-
-      {checkUser === 3 ? (<>
-        <Modal.Header  className='py-1' closeButton>
-          <Modal.Title>ສະແກນຄີວອາໂຄດ</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className='p-0'>
-        {checkUser === 3 && (
-            <QrReader
-              delay={300}
-              style={{ width: '100%' }}
-              onError={handleErrorWebCam}
-              onScan={handleScanWebCam}
-            />
-        )}
-            </Modal.Body>
-          </>) : (
-        <Modal.Body className='p-3'>
+        {checkUser === 3 ? (<>
+          <Modal.Header className='py-1' closeButton>
+            <Modal.Title>ສະແກນຄີວອາໂຄດ</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className='p-0'>
+            {checkUser === 3 && (
+              <QrReader
+                delay={300}
+                style={{ width: '100%' }}
+                onError={handleErrorWebCam}
+                onScan={handleScanWebCam}
+              />
+            )}
+          </Modal.Body>
+        </>) : (
+          <Modal.Body className='p-3'>
             <div className="row pt-3">
               <div className="col-sm-12 ">
                 <form onSubmit={heandleSearch}>
@@ -860,9 +932,6 @@ function FormSale() {
                           <i className='fas fa-user text-red' />
                         </InputGroup.Button>
                         <Input size='lg' ref={inputRef} autoFocus onChange={(e) => headleCheng('userSale_id', e)} className='text-center' placeholder='||||||||||||||||||||||||||||' required />
-                        {/* <InputGroup.Button onClick={() => checkUseFrom(3)}>
-                          <i class="fa-solid fa-camera" />
-                        </InputGroup.Button> */}
                       </InputGroup>
                     ) : checkUser === 2 && (
                       <div className='row' >
@@ -882,8 +951,8 @@ function FormSale() {
                 )}
               </div>
             </div>
-        </Modal.Body>
-          )}
+          </Modal.Body>
+        )}
       </Modal>
 
       <Modal show={showpay} size='xl' backdrop="static" className='modal-pos' centered  >
@@ -898,9 +967,8 @@ function FormSale() {
                   <div className="col-sm-12 mb-2">
                     <div className="from-groupmb-4" >
                       <label htmlFor="" className='form-label fs-14px'>ເບີໂທລະສັບ</label>
-                      <input type="text" className='hide' value={order.customId = custom.customId} />
                       <InputGroup>
-                        <Input type="tel" className='' defaultValue={order.cus_tel || custom.cus_tel} onChange={(e) => handleChange('cus_tel', e)} name='cus_tel' placeholder='ເບໂທລະສັບ' />
+                        <Input type="tel" className='' value={order.cus_tel } onChange={(e) => handleChange('cus_tel', e)} name='cus_tel' placeholder='ເບໂທລະສັບ' />
                         {search && (
                           <InputGroup.Button onClick={handleSearchCust}>
                             <i className="fas fa-search"></i>
@@ -917,31 +985,38 @@ function FormSale() {
                       </ul>
                     </div>
                   </div>
-                  <div className="col-sm-6 mb-2">
+                  <div className="col-sm-6 col-6 mb-2">
                     <div className="from-groupmb-4">
                       <label htmlFor="" className='form-label fs-14px'>ຊື່ລູກຄ້າ</label>
-                      <Input type="text" className='' value={order.cus_fname || custom.cus_fname} onChange={(e) => handleChange('cus_fname', e)} name='cus_fname' placeholder='ຊື່ລູກຄ້າ' />
+                      <Input type="text" className='' value={order.cus_fname} onChange={(e) => handleChange('cus_fname', e)} name='cus_fname' placeholder='ຊື່ລູກຄ້າ' />
                     </div>
                   </div>
-                  <div className="col-sm-6 mb-2">
+                  <div className="col-sm-6 col-6 mb-2">
                     <div className="from-groupmb-4">
                       <label htmlFor="" className='form-label fs-14px'>ນາມສະກຸນ</label>
-                      <Input type="text" className='' value={order.cus_lname || custom.cus_lname} onChange={(e) => handleChange('cus_lname', e)} name='cus_lname' placeholder='ນາມສະກຸນ' />
+                      <Input type="text" className='' value={order.cus_lname} onChange={(e) => handleChange('cus_lname', e)} name='cus_lname' placeholder='ນາມສະກຸນ' />
                     </div>
                   </div>
                   <div className="col-sm-12 mb-2">
                     <div className="from-groupmb-4">
                       <label htmlFor="" className='form-label fs-14px'>ທີ່ຢູ່ປະຈຸບັນ</label>
-                      <Input className='py-3  fs-14px' value={order.cus_address || custom.cus_address} onChange={(e) => handleChange('cus_address', e)} name="cus_address" placeholder='ທີ່ຢູ່ປະຈຸບັນ' />
+                      <Input className='py-3  fs-14px' value={order.cus_address} onChange={(e) => handleChange('cus_address', e)} name="cus_address" placeholder='ທີ່ຢູ່ປະຈຸບັນ' />
                     </div>
                   </div>
                 </div>
               </div>
               <div className="modal-pos-product-info">
-                <div className="fs-4 fw-bold">ລາຍການສິນຄ້າ</div>
-                <hr />
+                <RadioTileGroup defaultValue={activeRate} inline={isInline} onChange={handleRateChange} aria-label="1" className='py-1 '>
+                  {dataList.map((rete,key)=>
+                  <RadioTile icon={<img src={`./assets/img/flag/${rete.currency_icon}`} className='w-30px' />} label={rete.currency_name +' ('+rete.genus+')'} value={rete.currency_id}  className='my-1 py-1 '>
+                    {numeral(rete.reate_price).format('0,00')}
+                  </RadioTile>
+                  )}
+                </RadioTileGroup>
+                <hr className='mt-1' />
                 <div className="option-list mb-2">
-                  <table className='table text-nowrap'>
+                  <div className="table-responsive w-100">
+                  <table className='table text-nowrap w-100'>
                     <body>
                       {itemcart.map((val, index) =>
                         <tr>
@@ -962,33 +1037,49 @@ function FormSale() {
                       <tr className='fs-16px'>
                         <td colSpan={4} className='text-end'>ລວມຍອດທັງໝົດ :</td>
                         <td className='text-end text-danger'>{itemcart.reduce((acc, val) => acc + parseFloat((val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty), 0)} g</td>
-                        <td colSpan={2} className='text-end text-gold bg-black'>{numeral(totalBalance + totalPattern).format('0,00')}</td>
+                        <td colSpan={2} className='text-end text-gold bg-black'>{numeral(totalBalance + totalPattern).format('0,00')} ₭</td>
                       </tr>
+                      {activeRate !==22001 &&(
+                      <tr>
+                        <td colSpan={4} className='text-end fs-16px'>ຍອດເງິນທີ່ຕ້ອງຈ່າຍ ({currencyName}):</td>
+                        <td></td>
+                        <td colSpan={2} className='text-end text-gold bg-vk fs-18px'>{numeral(totalBalancePay).format('0,00.00')} {genus}</td>
+                      </tr>
+                      )}
                     </body>
                   </table>
+                  </div>
                 </div>
                 <div className="row fs-16px">
-                  <div className="col-sm-6 mb-2">
-                    <label htmlFor="" className='form-label'>ຮັບເງິນສົດ</label>
+                  <div className="col-sm-6 col-6 mb-2">
+                    <label htmlFor="" className='form-label'>ຮັບເງິນສົດ </label>
+                    <InputGroup inside className='bg-lime-100'>
                     <Input size='lg' value={numeral(order.balance_cash).format('0,00')} onChange={(e) => handleCashChange('balance_cash', e)} className='bg-lime-100' placeholder='0.00' />
+                    <InputGroup.Addon> {genus}</InputGroup.Addon>
+                    </InputGroup>
                   </div>
-                  <div className="col-sm-6 mb-2">
+                  <div className="col-sm-6 col-6 mb-2">
                     <label htmlFor="" className='form-label'>ຮັບເງິນໂອນ</label>
+                    <InputGroup inside className='bg-lime-100'>
                     <Input size='lg' value={numeral(order.balance_transfer).format('0,00')} onChange={(e) => handleTransferChange('balance_transfer', e)} className='bg-lime-100' readOnly={checkOnly} placeholder='0.00' />
+                    <InputGroup.Addon> {genus}</InputGroup.Addon>
+                    </InputGroup>
                   </div>
-                  <div className="col-sm-8 mb-2">
-                    <input type="text" value={order.balance_payment = balancePayment} className='hide' />
+                  <div className="col-sm-8 col-6 mb-2">
+                    {/* <input type="text" value={order.balance_payment } className='hide' /> */}
                     <label htmlFor="" className='form-label'>ເງິນທອນ</label>
-                    <Input size='lg' value={numeral(order.balance_return = balanceReturn).format('0,00')} placeholder='0.00' className='bg-orange-100' readOnly />
+                    <InputGroup inside className='bg-orange-100'>
+                    <Input size='lg' value={numeral(order.balance_return=(balanceReturn*ratePrice)).format('0,00')} placeholder='0.00' className='bg-orange-100' readOnly />
+                    <InputGroup.Addon> ₭</InputGroup.Addon>
+                    </InputGroup>
                   </div>
-                  <div className="col-sm-4 mb-2 text-center">
+                  <div className="col-sm-4 col-6 mb-2 text-center">
                     <label htmlFor="" className='form-label'>ບິນຮ້ານ</label>
                     <Input size='lg' onChange={(e) => handleChange('bill_shop', e)} placeholder='0x-xxxx' className='bg-dark text-center text-white' />
                   </div>
                   <div className="col-sm-12">
                     <label htmlFor="" className='form-label'>ໝາຍເຫດ</label>
                     <input type="text" value={order.total_grams = itemcart.reduce((acc, val) => acc + parseFloat(val.qty_grams * val.order_qty), 0)} className='hide' />
-                    <input type="text" value={order.balance_total = balanceTotal} className='hide' />
                     <Input name="sale_remark" onChange={(e) => handleChange('sale_remark', e)} id="" className='fs-14px py-3' placeholder='ໝາຍເຫດ' />
                   </div>
                 </div>

@@ -216,21 +216,42 @@ export function useStaff() {
 
 
 export function useWeight(id) {
-  const [itemPorduct, setItemProduct] = useState([]);
+  const [itemWeight, setItemWeight] = useState([]);
   useEffect(() => {
-    const fetchPorduct = async () => {
+    const fetchWeight = async () => {
       if (!id) return; // Exit if id is not valid
         try {
             const response = await fetch(api + 'posd/option/'+id );
             const jsonData = await response.json();
-            setItemProduct(jsonData);
+            setItemWeight(jsonData);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     }
    
-    fetchPorduct();
+    fetchWeight();
   }, [id]); 
-  const data = itemPorduct.map(item => ({ label: item.qty_baht + '/' + item.option_name, value: item.product_uuid }));
+  const data = itemWeight.map(item => ({ label: item.qty_baht + '/' + item.option_name, value: item.product_uuid }));
   return data;
+}
+
+
+
+export function useRate() {
+  const [itemRate, setItemRate] = useState([]);
+  useEffect(() => {
+    const fetchRate = async () => {
+        try {
+            const response = await fetch(api + 'rate/');
+            const jsonData = await response.json();
+            setItemRate(jsonData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+   
+    fetchRate();
+  }, []); 
+  const data = itemRate.map(item => ({ label: item.currency_name + '(' + item.genus+')', value: item.currency_id }));
+  return {option:data,dataList:itemRate};
 }
