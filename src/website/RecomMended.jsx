@@ -224,10 +224,6 @@ const handleSelect = (item) => {
           <button class="btn btn-red btn-rounded px-4 rounded-pill" onClick={handleOpen}><i class="fa fa-plus fa-lg me-2 ms-n2 text-success-900"></i> ເພີ່ມຂໍ້ມູນໃໝ່</button>
         </div>
       </div>
-      <div class="mb-3 d-sm-flex fw-bold">
-        <div class="mt-sm-0 mt-2"><a href="#" class="text-dark text-decoration-none"><i class="fa fa-download fa-fw me-1 text-dark text-opacity-50"></i> Export</a></div>
-        <div class="ms-sm-4 ps-sm-1 mt-sm-0 mt-2"><a href="#" class="text-dark text-decoration-none"><i class="fa fa-upload fa-fw me-1 text-dark text-opacity-50"></i> Import</a></div>
-      </div>
       <div class="card border-0">
         <div class="tab-content p-3">
           <div class="input-group mb-3">
@@ -334,7 +330,7 @@ const handleSelect = (item) => {
               <Input type='number' block value={inputs.qty_baht} onChange={(e)=>handledChange('qty_baht',e)} placeholder='0' />
             </div>
             <div className="col-sm-6 col-6 mb-2">
-              <label htmlFor="" className='form-label'>ຫົວໜວຍ</label>
+              <label htmlFor="" className='form-label'>ຫົວໜ່ວຍ</label>
               <InputPicker block  data={itemoPtion} value={inputs.optoin_id_fk} onChange={(e)=>handledChange('optoin_id_fk',e)} />
             </div>
             <div className="col-sm-12 mb-2">

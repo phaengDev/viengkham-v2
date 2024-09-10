@@ -32,11 +32,17 @@
         {
           "_id": 2,
           "mainId": 2,
+          "sumName": "ກວດສອບຊື້ອອນໄລນ໌",
+          "parth": "check-bill"
+        },
+        {
+          "_id": 3,
+          "mainId": 2,
           "sumName": "ຍົກເລີກບິນຂາຍ",
           "parth": "cancle"
         },
         {
-          "_id": 3,
+          "_id": 4,
           "mainId": 2,
           "sumName": "ປິດການຂາຍປະຈຳວັນ",
           "parth": "offSale"

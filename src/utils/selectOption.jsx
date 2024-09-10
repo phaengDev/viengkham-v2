@@ -1,11 +1,8 @@
 import  { useState, useEffect } from "react";
 import { Config } from "../config/connect";
-import axios from "axios";
 const api = Config.urlApi;
-
 export function useProvince() {
   const [itemProvince, setItemProvince] = useState([]);
-
   useEffect(() => {
     const showProvince = async () => {
       try {
@@ -16,12 +13,10 @@ export function useProvince() {
         console.error('Error fetching data:', error);
       }
     };
-
     showProvince();
   }, []); 
 
   const data = itemProvince.map(item => ({ label: item.province_name, value: item.province_id }));
-
   return data;
 }
 
@@ -65,6 +60,8 @@ export function useOption() {
     const data = itemOption.map(item => ({ label: item.option_name, value: item.option_id }));
     return data;
   }
+
+  
     export function useBranch() {
       const [itemBranch, setItembranch] = useState([]);
     

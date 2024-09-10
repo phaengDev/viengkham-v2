@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
-// import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Modal from 'react-bootstrap/Modal';
-import { Input, Message, useToaster, InputGroup, InputNumber, SelectPicker } from 'rsuite';
+import { Input, Message, useToaster, InputGroup, InputNumber, SelectPicker, InputPicker } from 'rsuite';
 import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
 import Alert from '../../utils/config';
@@ -9,21 +9,23 @@ import numeral from 'numeral';
 import Invoice from '../../invoice/bill-invoice';
 import Swal from 'sweetalert2';
 import Select from 'react-select'
-import { useStaff } from '../../utils/selectOption';
+import { useStaff, useOption } from '../../utils/selectOption';
 import { QrReader } from 'react-qr-reader';
 
 import { RadioTile, RadioTileGroup, useMediaQuery } from 'rsuite';
 import { useRate } from '../../utils/selectOption';
+import ModalOrder from './Modal-order';
 function FormSale() {
 
   const api = Config.urlApi;
   const img = Urlimage.url;
+  const itemOption = useOption();
 
-  const {dataList}=useRate()
-  // const navigate = useNavigate();
-  // const headleBack = () => {
-  //   navigate(`/home`);
-  // }
+  const { dataList } = useRate()
+  const navigate = useNavigate();
+  const handleBack = () => {
+    navigate(`/home`);
+  }
   // const handleGoBack = () => {
   //   navigate(-1);
   // };
@@ -117,10 +119,10 @@ function FormSale() {
       });
   }
 
-  const [check, setCheck] = useState(false);
-  const openSearch = (index) => {
-    setCheck(index);
-  }
+  // const [check, setCheck] = useState(false);
+  // const openSearch = (index) => {
+  //   setCheck(index);
+  // }
   const [active, setActive] = useState('')
   const [datasearch, setDataSearch] = useState({
     zoneId: '',
@@ -162,6 +164,18 @@ function FormSale() {
       n.code_id.toLowerCase().includes(event.toLowerCase()) // Filter by code_id
     ));
   }
+
+
+  const hanchBranch = (event) => {
+    if (event === '' || event === null) {
+      setItemProduct(filterName);
+    } else {
+      setItemProduct(filterName.filter(n =>
+        n.option_id_fk.toLowerCase().includes(event.toLowerCase())
+      ));
+    }
+  }
+
 
   const [images, setImages] = useState('/assets/img/icon/picture.jpg')
 
@@ -207,83 +221,15 @@ function FormSale() {
   }
 
   const [dataps, setDataps] = useState({})
-
+const [patternList,setPatternList]=useState([]);
   const addOrderCart = (item) => {
     modalView(true)
     setDataps(item);
-    setValues({
-      type_id_fk: '',
-      title_id_fk: item.tiles_id_fk,
-      option_id_fk: item.option_id_fk,
-    });
-    setIsVisible(false);
-    setBuyadd(0)
-  }
-
-  const [values, setValues] = useState({
-    type_id_fk: '',
-    title_id_fk: '',
-    option_id_fk: '',
-  })
-  const [itemPattern, setItemPattern] = useState([])
-  const fetchData = async () => {
-    try {
-      const response = await axios.post(api + 'pattern/', values);
-      const jsonData = response.data;
-      setItemPattern(jsonData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    if (item.patternList) {
+      setPatternList(item.patternList);
     }
+    
   }
-
-
-  const [pattern, setPattern] = useState(0);
-  //  const addPattern=(price)=>{
-  //   setPattern(price)
-  //  }
-
-  const [buyadd, setBuyadd] = useState(0)
-  const [orderQty, setOrderQty] = useState('1');
-  const confirmOrder = () => {
-    const buyAddValue = buyadd > 0 ? (buyadd * dataps.kilogram) : 0;
-    const dataOrder = {
-      product_id_fk: dataps.product_uuid,
-      zone_id_fk: dataps.zone_id_fk,
-      price_buy: dataps.price_buy,
-      price_sale: dataps.price_sale,
-      qty_grams: dataps.grams,
-      patternPrice: pattern,
-      order_qty: orderQty,
-      buy_add: buyAddValue,
-      qty_add: buyadd,
-      staff_id_fk: data.staff_uuid,
-      user_id_fk: userId
-    };
-
-    if (dataps.quantity <= 0) {
-      return showMessage('ສິນຄ້າໝົດແລ້ວ ກະລຸນາເລືອກໂຊນອື່ນ', 'error');
-    }
-    if (data.staff_uuid) {
-      axios.post(api + 'order/create', dataOrder)
-        .then(function (res) {
-          if (res.status === 200) {
-            showMessage(res.data.message, 'success');
-            fetchItemCart();
-            modalView(false);
-            setPattern(0);
-            setIsVisible(false);
-            setOrderQty('1')
-          } else {
-            showMessage(res.data.message, 'error');
-          }
-        }).catch(function () {
-          showMessage('ການເພີມສິນຄ້າໄດ້ການຜິດພາດ ທາງລະບົບ', 'error');
-        });
-    } else {
-      setShow(true);
-    }
-  }
-
 
   //========= off add order ============ \\
   const [itemcart, setItemCart] = useState([]);
@@ -291,7 +237,7 @@ function FormSale() {
   const [totalPattern, setTotalPattern] = useState(0);
   const [balanceTotal, setBalanceTotal] = useState(0)
 
-  const [totalBalancePay,setTotalBalancePay]=useState(0)
+  const [totalBalancePay, setTotalBalancePay] = useState(0)
 
   const fetchItemCart = async () => {
     try {
@@ -328,8 +274,8 @@ function FormSale() {
         ...prevOrder,
         staff_id_fk: staffId,
         items: items,
-        balance_total:balance + bnPattern,
-        balance_totalpay:balance + bnPattern
+        balance_total: balance + bnPattern,
+        balance_totalpay: balance + bnPattern
       }));
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -360,9 +306,9 @@ function FormSale() {
     balance_transfer: '0',
     balance_payment: '0',
     balance_return: '0',
-    currency_id_fk:22001,
-    rate_price:1,
-    balance_totalpay:0,
+    currency_id_fk: 22001,
+    rate_price: 1,
+    balance_totalpay: 0,
     items: []
   });
   const [search, setSearch] = useState(false)
@@ -401,16 +347,6 @@ function FormSale() {
           })
           setItemCart([])
           setShowPay(false);
-          // handleModal(true);
-          // showMessage(res.data.message, 'success');
-          // setCustom({
-          //   customId: '',
-          //   cus_fname: '',
-          //   cus_lname: '',
-          //   cus_tel: '',
-          //   cus_address: '',
-          //   sale_remark: '',
-          // });
           setOrder({
             bill_shop: '',
             alance_total: '0',
@@ -419,9 +355,9 @@ function FormSale() {
             balance_transfer: '0',
             balance_payment: '0',
             balance_return: '0',
-            rate_price:1,
-            balance_totalpay:0,
-            currency_id_fk:22001,
+            rate_price: 1,
+            balance_totalpay: 0,
+            currency_id_fk: 22001,
           })
           setBalanceReturn(0);
           setPrint(true);
@@ -438,47 +374,47 @@ function FormSale() {
   const [balanceCash, setBalanceCash] = useState(0);
   const [balanceTransfer, setBalanceTransfer] = useState(0);
   const [balanceReturn, setBalanceReturn] = useState(0);
-  const [ratePrice,setRatePrice]=useState(1)
+  const [ratePrice, setRatePrice] = useState(1)
   // const balancePayment = balanceCash + balanceTransfer;
   const [balancePayment, setBalancePayment] = useState(0); // Assuming this is set elsewhere in your code
-  
-  
-const handleCashChange = (name, value) => {
-  const newAmount = parseFloat(value.replace(/,/g, ''));
-  setBalanceCash(isNaN(newAmount) ? 0 : newAmount);
 
-  setBalancePayment(newAmount+parseFloat(balanceTransfer));
 
-  if ((newAmount+balanceTransfer) > totalBalancePay) {
-    setBalanceReturn((newAmount+balanceTransfer)-totalBalancePay);
-  } else {
-    setBalanceReturn(0);
-  }
+  const handleCashChange = (name, value) => {
+    const newAmount = parseFloat(value.replace(/,/g, ''));
+    setBalanceCash(isNaN(newAmount) ? 0 : newAmount);
 
-  if (newAmount >= totalBalancePay) {
-    setBalanceTransfer(0);
-    setCheckOnly('readOnly');
+    setBalancePayment(newAmount + parseFloat(balanceTransfer));
+
+    if ((newAmount + balanceTransfer) > totalBalancePay) {
+      setBalanceReturn((newAmount + balanceTransfer) - totalBalancePay);
+    } else {
+      setBalanceReturn(0);
+    }
+
+    if (newAmount >= totalBalancePay) {
+      setBalanceTransfer(0);
+      setCheckOnly('readOnly');
+      setOrder(prevOrder => ({
+        ...prevOrder, balance_transfer: 0,
+      }));
+    } else {
+      setCheckOnly('');
+    }
+
     setOrder(prevOrder => ({
-      ...prevOrder, balance_transfer: 0,
+      ...prevOrder, [name]: value,
     }));
-  } else {
-    setCheckOnly('');
-  }
 
-  setOrder(prevOrder => ({
-    ...prevOrder, [name]: value,
-  }));
-
-};
-//================
+  };
+  //================
   const handleTransferChange = (name, value) => {
     const newTransfer = parseFloat(value.replace(/,/g, ''));
     setBalanceTransfer(isNaN(newTransfer) ? 0 : parseInt(newTransfer));
-    setBalancePayment(newTransfer+parseFloat(balanceCash));
+    setBalancePayment(newTransfer + parseFloat(balanceCash));
 
 
-    if (newTransfer+parseFloat(balanceCash) > totalBalancePay) {
-      setBalanceReturn(newTransfer+parseFloat(balanceCash)-totalBalancePay);
+    if (newTransfer + parseFloat(balanceCash) > totalBalancePay) {
+      setBalanceReturn(newTransfer + parseFloat(balanceCash) - totalBalancePay);
     } else {
       setBalanceReturn(0);
     }
@@ -506,21 +442,21 @@ const handleCashChange = (name, value) => {
         setActiveShow('');
         setOrder({
           ...order,
-          customId:'',
-          cus_fname:'',
-          cus_lname:'',
-          cus_tel:'',
-          cus_address:'',
+          customId: '',
+          cus_fname: '',
+          cus_lname: '',
+          cus_tel: '',
+          cus_address: '',
         });
       }
     } catch (error) {
       setOrder({
         ...order,
-        customId:'',
-        cus_fname:'',
-        cus_lname:'',
-        cus_tel:'',
-        cus_address:'',
+        customId: '',
+        cus_fname: '',
+        cus_lname: '',
+        cus_tel: '',
+        cus_address: '',
       });
       console.error('Error fetching data:', error);
     }
@@ -579,14 +515,13 @@ const handleCashChange = (name, value) => {
   // ===================== \\
 
   const toaster = useToaster();
-  // const [placement, setPlacement] = useState('topEnd');
   const showMessage = (messName, notifi) => {
     const message = (
       <Message showIcon type={notifi} closable>
         <strong>ຢືນຢັນ! </strong> {messName}
       </Message>
     );
-    toaster.push(message, { placement:'topEnd' });
+    toaster.push(message, { placement: 'topEnd' });
   };
 
   const [checkOnly, setCheckOnly] = useState('');
@@ -597,18 +532,9 @@ const handleCashChange = (name, value) => {
   }
 
 
-  const [isVisible, setIsVisible] = useState(false);
-  const handleToggle = () => {
-    setIsVisible(!isVisible);
-    setBuyadd(0)
-  };
-
-
   //======================
-
-
   useEffect(() => {
-    fetchData()
+    // fetchData()
     fetchStockPorduct();
     fetchZone();
     fetchItemCart();
@@ -625,7 +551,7 @@ const handleCashChange = (name, value) => {
       document.removeEventListener("keypress", handleKeyPress);
     };
 
-  }, [datasearch, userId, barnchId, data,  values])
+  }, [datasearch, userId, barnchId, data])
 
   const [checkUser, setCheckUser] = useState(1)
 
@@ -642,13 +568,13 @@ const handleCashChange = (name, value) => {
       setScanResultWebCam(result);
     }
   }
- 
+
 
   //=============== ນຳໃຊ້ເລດເງິນ 
-  const [isInline] = useMediaQuery('xl'); 
-  const [activeRate,setActiveRate]=useState(22001);
-  const [currencyName,setCurrencyName]=useState('LA');
-const [genus,setGenus]=useState('₭');
+  const [isInline] = useMediaQuery('xl');
+  const [activeRate, setActiveRate] = useState(22001);
+  const [currencyName, setCurrencyName] = useState('LA');
+  const [genus, setGenus] = useState('₭');
   const handleRateChange = (newValue) => {
     setActiveRate(newValue);
     const useRate = dataList.find(item => item.currency_id === newValue);
@@ -660,20 +586,19 @@ const [genus,setGenus]=useState('₭');
       setRatePrice(useRate.reate_price)
       setOrder({
         ...order, currency_id_fk: newValue,
-        rate_price:useRate.reate_price,
-        balance_totalpay:updatedTotalBalancePay,
-        balance_cash:0,
-        balance_transfer:0,
-        balance_return:0
+        rate_price: useRate.reate_price,
+        balance_totalpay: updatedTotalBalancePay,
+        balance_cash: 0,
+        balance_transfer: 0,
+        balance_return: 0
       });
 
-    setBalanceReturn(0)
-    setBalanceTransfer(0)
-    setBalanceCash(0)
+      setBalanceReturn(0)
+      setBalanceTransfer(0)
+      setBalanceCash(0)
     }
 
   };
-
 
   return (
     <>
@@ -715,6 +640,27 @@ const [genus,setGenus]=useState('₭');
               </div>
             </div>
             <div className="pos-content">
+              <div className='sticky-top bg-vk px-2 p-1 mt-1 rounded-3 me-2 ms-2 nav-container' >
+                <div className="row ">
+                  <div className="col-5 col-sm-3">
+                    <InputGroup className='border-0'>
+                      <InputGroup.Button onClick={handleBack} color="blue" appearance="primary" className='me-2 rounded'>
+                        <i class="fa-solid fa-circle-arrow-left fs-4"></i>
+                      </InputGroup.Button>
+                      <InputPicker data={itemOption} onChange={(e) => hanchBranch(e)} placeholder='ປະເພດນ້ຳໜັກ' />
+                    </InputGroup>
+                  </div>
+                  <div className="col-7 col-sm-9">
+                    <InputGroup inside>
+                      <InputGroup.Addon>
+                        <i className='fas fa-search' />
+                      </InputGroup.Addon>
+                      <Input ref={inputRef} onChange={(e) => Filter(e)} placeholder='ຄົ້ນຫາ ຊື່ສິນຄ້າ/ ລະຫັດສິນຄ້າ' />
+                    </InputGroup>
+                  </div>
+                </div>
+              </div>
+
               <div className="pos-content-container h-100">
                 <div className="product-row">
                   {itempos.map((item, index) =>
@@ -741,25 +687,6 @@ const [genus,setGenus]=useState('₭');
                   )}
                 </div>
 
-                <div className="text-center ">
-                  {check === true ? (
-                    <div className="panel bg-default input-search">
-                      <div className="panel-heading ">
-                        <div className="panel-title">
-                          <input type="text" onChange={(event) => Filter(event.target.value)} className='form-control form-control-lg border-blue text-center' placeholder='ຄົ້ນຫາ' />
-                        </div>
-                        <div className="panel-heading-btn pb-5">
-                          <a href="javascript:;" onClick={() => openSearch(false)} className="btn btn-xs btn-icon btn-danger"><i className="fa fa-times"></i></a>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <a href="ajvascrpit:;" onClick={() => openSearch(true)} className="btn btn-primary btn-icon btn-lg  fixed-b">
-                      <i className="fas fa-search fs-18px"></i>
-                    </a>
-                  )}
-
-                </div>
               </div>
             </div>
             <div className="pos-sidebar">
@@ -767,17 +694,16 @@ const [genus,setGenus]=useState('₭');
                 <div className="pos-sidebar-header ">
                   <div className="back-btn">
                     <button type="button"
-                      data-dismiss-class="pos-sidebar-mobile-toggled" data-target="#pos" 
-                      className="btn border-0"
-                    >
+                      data-dismiss-class="pos-sidebar-mobile-toggled" data-target="#pos"
+                      className="btn border-0" >
                       <i className="fa fa-chevron-left" />
                     </button>
                   </div>
-                  <div className="icon text-plc">
-                    <i className="fa-solid fa-user-tie text-plc"></i>
+                  <div className="icon ">
+                    <i className="fa-solid fa-user-tie text-white"></i>
                   </div>
                   <div className="title">{data.first_name + ' ' + data.last_name}</div>
-                  <div className="order">
+                  <div className="order bg-orange">
                     ID: <b>{data.id_code}</b>
                   </div>
                 </div>
@@ -807,11 +733,7 @@ const [genus,setGenus]=useState('₭');
                                         <i className="fa fa-minus" />
                                       </span>
                                     </div>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      value={val.order_qty}
-                                    />
+                                    <input type="text" className="form-control" value={val.order_qty} />
                                     <div className="input-group-prepend">
                                       <span role='button' onClick={() => heandlePlus(val.cart_id)} className={`btn btn-success ${val.qty_add > 0 ? 'disabled' : ''}`}>
                                         <i className="fa fa-plus" />
@@ -968,7 +890,7 @@ const [genus,setGenus]=useState('₭');
                     <div className="from-groupmb-4" >
                       <label htmlFor="" className='form-label fs-14px'>ເບີໂທລະສັບ</label>
                       <InputGroup>
-                        <Input type="tel" className='' value={order.cus_tel } onChange={(e) => handleChange('cus_tel', e)} name='cus_tel' placeholder='ເບໂທລະສັບ' />
+                        <Input type="tel" className='' value={order.cus_tel} onChange={(e) => handleChange('cus_tel', e)} name='cus_tel' placeholder='ເບໂທລະສັບ' />
                         {search && (
                           <InputGroup.Button onClick={handleSearchCust}>
                             <i className="fas fa-search"></i>
@@ -1006,71 +928,71 @@ const [genus,setGenus]=useState('₭');
                 </div>
               </div>
               <div className="modal-pos-product-info">
-                <RadioTileGroup defaultValue={activeRate} inline={isInline} onChange={handleRateChange} aria-label="1" className='py-1 '>
-                  {dataList.map((rete,key)=>
-                  <RadioTile icon={<img src={`./assets/img/flag/${rete.currency_icon}`} className='w-30px' />} label={rete.currency_name +' ('+rete.genus+')'} value={rete.currency_id}  className='my-1 py-1 '>
-                    {numeral(rete.reate_price).format('0,00')}
-                  </RadioTile>
+                <RadioTileGroup defaultValue={activeRate} inline={isInline} onChange={handleRateChange} aria-label="1" className='py-1 my-1'>
+                  {dataList.map((rete, key) =>
+                    <RadioTile icon={<img src={`./assets/img/flag/${rete.currency_icon}`} className='w-30px' />} label={rete.currency_name + ' (' + rete.genus + ')'} value={rete.currency_id} className='py-1 '>
+                      {numeral(rete.reate_price).format('0,00')}
+                    </RadioTile>
                   )}
                 </RadioTileGroup>
                 <hr className='mt-1' />
                 <div className="option-list mb-2">
                   <div className="table-responsive w-100">
-                  <table className='table text-nowrap w-100'>
-                    <body>
-                      {itemcart.map((val, index) =>
-                        <tr>
-                          <td className='text-center' width={'2%'}>{index + 1} </td>
-                          <td width={'3%'} className='with-img dt-type-numeric'>
-                            <img src={val.file_image !== '' ? img + 'pos/' + val.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' alt="" />
-                          </td>
-                          <td>{val.tile_name + ' ' + val.qty_baht + '  ' + val.option_name} {val.qty_add > 0 ? (<span className='text-green'>+ {val.qty_add}</span>) : ('')}</td>
-                          <td>{val.order_qty + ' / ' + val.unite_name}</td>
-                          <td className='text-end'>{(val.qty_baht * val.qty_grams)} g</td>
-                          <td className='text-end'>+ {numeral(val.price_pattern * val.order_qty * val.qty_baht).format('0,00')}</td>
-                          <td className='text-end'> {numeral(
-                            (val.price_sale * (val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty) +
-                            (val.price_pattern * val.order_qty * val.qty_baht)
-                          ).format('0,00')}</td>
+                    <table className='table text-nowrap w-100'>
+                      <body>
+                        {itemcart.map((val, index) =>
+                          <tr>
+                            <td className='text-center' width={'2%'}>{index + 1} </td>
+                            <td width={'3%'} className='with-img dt-type-numeric'>
+                              <img src={val.file_image !== '' ? img + 'pos/' + val.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' alt="" />
+                            </td>
+                            <td>{val.tile_name + ' ' + val.qty_baht + '  ' + val.option_name} {val.qty_add > 0 ? (<span className='text-green'>+ {val.qty_add}</span>) : ('')}</td>
+                            <td>{val.order_qty + ' / ' + val.unite_name}</td>
+                            <td className='text-end'>{(val.qty_baht * val.qty_grams)} g</td>
+                            <td className='text-end'>+ {numeral(val.price_pattern * val.order_qty * val.qty_baht).format('0,00')}</td>
+                            <td className='text-end'> {numeral(
+                              (val.price_sale * (val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty) +
+                              (val.price_pattern * val.order_qty * val.qty_baht)
+                            ).format('0,00')}</td>
+                          </tr>
+                        )}
+                        <tr className='fs-16px'>
+                          <td colSpan={4} className='text-end'>ລວມຍອດທັງໝົດ :</td>
+                          <td className='text-end text-danger'>{itemcart.reduce((acc, val) => acc + parseFloat((val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty), 0)} g</td>
+                          <td colSpan={2} className='text-end text-gold bg-black'>{numeral(totalBalance + totalPattern).format('0,00')} ₭</td>
                         </tr>
-                      )}
-                      <tr className='fs-16px'>
-                        <td colSpan={4} className='text-end'>ລວມຍອດທັງໝົດ :</td>
-                        <td className='text-end text-danger'>{itemcart.reduce((acc, val) => acc + parseFloat((val.qty_add > 0 ? val.grams_add : val.qty_grams) * val.order_qty), 0)} g</td>
-                        <td colSpan={2} className='text-end text-gold bg-black'>{numeral(totalBalance + totalPattern).format('0,00')} ₭</td>
-                      </tr>
-                      {activeRate !==22001 &&(
-                      <tr>
-                        <td colSpan={4} className='text-end fs-16px'>ຍອດເງິນທີ່ຕ້ອງຈ່າຍ ({currencyName}):</td>
-                        <td></td>
-                        <td colSpan={2} className='text-end text-gold bg-vk fs-18px'>{numeral(totalBalancePay).format('0,00.00')} {genus}</td>
-                      </tr>
-                      )}
-                    </body>
-                  </table>
+                        {activeRate !== 22001 && (
+                          <tr>
+                            <td colSpan={4} className='text-end fs-16px'>ຍອດເງິນທີ່ຕ້ອງຈ່າຍ ({currencyName}):</td>
+                            <td></td>
+                            <td colSpan={2} className='text-end text-gold bg-vk fs-18px'>{numeral(totalBalancePay).format('0,00.00')} {genus}</td>
+                          </tr>
+                        )}
+                      </body>
+                    </table>
                   </div>
                 </div>
                 <div className="row fs-16px">
                   <div className="col-sm-6 col-6 mb-2">
                     <label htmlFor="" className='form-label'>ຮັບເງິນສົດ </label>
                     <InputGroup inside className='bg-lime-100'>
-                    <Input size='lg' value={numeral(order.balance_cash).format('0,00')} onChange={(e) => handleCashChange('balance_cash', e)} className='bg-lime-100' placeholder='0.00' />
-                    <InputGroup.Addon> {genus}</InputGroup.Addon>
+                      <Input size='lg' value={numeral(order.balance_cash).format('0,00')} onChange={(e) => handleCashChange('balance_cash', e)} className='bg-lime-100' placeholder='0.00' />
+                      <InputGroup.Addon> {genus}</InputGroup.Addon>
                     </InputGroup>
                   </div>
                   <div className="col-sm-6 col-6 mb-2">
                     <label htmlFor="" className='form-label'>ຮັບເງິນໂອນ</label>
                     <InputGroup inside className='bg-lime-100'>
-                    <Input size='lg' value={numeral(order.balance_transfer).format('0,00')} onChange={(e) => handleTransferChange('balance_transfer', e)} className='bg-lime-100' readOnly={checkOnly} placeholder='0.00' />
-                    <InputGroup.Addon> {genus}</InputGroup.Addon>
+                      <Input size='lg' value={numeral(order.balance_transfer).format('0,00')} onChange={(e) => handleTransferChange('balance_transfer', e)} className='bg-lime-100' readOnly={checkOnly} placeholder='0.00' />
+                      <InputGroup.Addon> {genus}</InputGroup.Addon>
                     </InputGroup>
                   </div>
                   <div className="col-sm-8 col-6 mb-2">
                     {/* <input type="text" value={order.balance_payment } className='hide' /> */}
                     <label htmlFor="" className='form-label'>ເງິນທອນ</label>
                     <InputGroup inside className='bg-orange-100'>
-                    <Input size='lg' value={numeral(order.balance_return=(balanceReturn*ratePrice)).format('0,00')} placeholder='0.00' className='bg-orange-100' readOnly />
-                    <InputGroup.Addon> ₭</InputGroup.Addon>
+                      <Input size='lg' value={numeral(order.balance_return = (balanceReturn * ratePrice)).format('0,00')} placeholder='0.00' className='bg-orange-100' readOnly />
+                      <InputGroup.Addon> ₭</InputGroup.Addon>
                     </InputGroup>
                   </div>
                   <div className="col-sm-4 col-6 mb-2 text-center">
@@ -1099,78 +1021,16 @@ const [genus,setGenus]=useState('₭');
               </div>
             </div>
           </>
-
         </Modal.Body>
       </Modal>
 
-
-      <Modal size='lg' show={showView} onHide={() => modalView(false)} animation={false} className=' modal-pos'>
-        <Modal.Body className='p-0'>
-          <span role='button' onClick={() => modalView(false)} class="btn-close position-absolute top-0 end-0 m-4"></span>
-          <div class="modal-pos-product">
-            <div class="modal-pos-product-img">
-              <div
-                className="img"
-                style={{ backgroundImage: `url('${dataps.file_image !== '' ? img + 'pos/' + dataps.file_image : images}')` }}
-              />
-            </div>
-            <div class="modal-pos-product-info">
-              <div class="fs-4 fw-bold">{dataps.tile_name + ' ' + dataps.qty_baht + ' ' + dataps.option_name} ( {dataps.code_id} )</div>
-              <div class="fs-6 text-body text-opacity-50 mb-2">
-                {dataps.zone_name} / ນ້ຳໜັກ: {dataps.grams} ກຣາມ
-              </div>
-              <div class="fs-3 fw-bolder mb-3">{numeral(dataps.grams * dataps.price_sale).format('0,00')} ກີບ</div>
-              <div class="option-row">
-                <div class="d-flex mb-3">
-                  <button type='button' onClick={() => setOrderQty(prevQty => Math.max(parseInt(prevQty) - 1, 1))} class="btn btn-danger btn-sm d-flex align-items-center"><i class="fa fa-minus"></i></button>
-                  <input type="text" class="form-control w-40px fw-bold  px-0 mx-2 text-center border-0" name="qty" value={orderQty > 0 ? orderQty : '1'}
-                    onChange={(e) => setOrderQty(Math.max(parseInt(e.target.value), 1))} />
-                  <button type='button' onClick={() => setOrderQty(prevQty => parseInt(prevQty) + 1)} class="btn btn-green btn-sm d-flex align-items-center"><i class="fa fa-plus"></i></button>
-                  <button type='button' onClick={handleToggle} class="btn btn-default btn-sm d-flex align-items-center ms-3 me-2"> {isVisible === true ? (<i class="fa-solid fa-minus text-red" />) : (<i class="fa-solid fa-ellipsis-vertical" />)} </button>
-                  {isVisible && <InputGroup inside size="sm" style={{ width: '160px' }} >
-                    <InputGroup.Addon>ຊື້ເພີ່ມ</InputGroup.Addon>
-                    <InputNumber size="sm" onChange={(e) => setBuyadd(e)} defaultValue="0" />
-                  </InputGroup>}
-                </div>
-
-              </div>
-              <hr />
-              <div class="mb-3">
-                <div class="fw-bold fs-6">ລາຍ</div>
-                <div class="option-list">
-                  <div class="option " >
-                    <input type="radio" id="size" name="size[]" onChange={() => setPattern('0')} class="option-input" />
-                    <label class="option-label bg-black-100" for="size" role='button'>
-                      <span class="option-text">ບໍ່ມີຄ່າລາຍ</span>
-                      <span class="option-price">+0.00</span>
-                    </label>
-                  </div>
-                  {itemPattern.map((item, key) => (
-                    <div key={key} class="option" role='button'>
-                      <input type="radio" id={`size${key + 1}`} name='size[]' onChange={() => setPattern(item.pattern_pirce)} class="option-input" />
-                      <label class="option-label" for={`size${key + 1}`} role='button'>
-                        <span class="option-text">{item.pattern_name}</span>
-                        <span class="option-price">+{numeral(item.pattern_pirce).format('0,00')}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <hr />
-              <div class="row gx-3">
-                <div class="col-4">
-                  <button type='button' class="btn btn-danger w-100 fs-14px rounded-3 fw-bold mb-0 d-block py-3" onClick={() => modalView(false)}>ຍົກເລີກ</button>
-                </div>
-                <div class="col-8">
-                  <button type='button' onClick={confirmOrder} class="btn btn-theme w-100 fs-14px rounded-3 fw-bold d-flex justify-content-center align-items-center py-3 m-0">ເພີ່ມກະຕ່າ <i class="fa fa-plus ms-3"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Modal.Body>
-
-      </Modal>
+      <ModalOrder
+        dataps={dataps}
+        itemPattern={patternList}
+        showView={showView}
+        handleClose={() => setShowView(false)}
+        staff={data}
+        fetchItemCart={fetchItemCart} />
     </>
   )
 }

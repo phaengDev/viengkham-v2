@@ -18,10 +18,10 @@ export default function ViewPorductTile() {
     };
     const itemType = useType();
     const itemOption = useOption();
-const [data,setData]=useState({});
+    const [data, setData] = useState({});
     const fetchTypetle = async () => {
         try {
-            const response = await fetch(api + 'tileps/single/'+tileId);
+            const response = await fetch(api + 'tileps/single/' + tileId);
             const jsonData = await response.json();
             setData(jsonData)
         } catch (error) {
@@ -47,17 +47,33 @@ const [data,setData]=useState({});
     }
 
 
+    const handleEdit = (data) => {
+        setFormAdd(true);
+        setInputs({
+            product_uuid: data.product_uuid,
+            quantity_all: 0,
+            option_id_fk: data.option_id_fk,
+            qty_baht: data.qty_baht,
+            tiles_id_fk: tileId,
+            file_image: null,
+            porduct_detail: data.porduct_detail
+        });
+        if (data.file_image !== '') {
+            setImageUrl(url + 'pos/' + data.file_image);
+            setSelectedFile(true)
+        }
+    }
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const imputData=new FormData();
-        for(const key in inputs){
-            imputData.append(key,inputs[key])
+        const imputData = new FormData();
+        for (const key in inputs) {
+            imputData.append(key, inputs[key])
         }
-        console.log(inputs)
         try {
             axios.post(api + 'posd/create', imputData)
                 .then(function (res) {
-                    console.log(res)
                     if (res.status === 200) {
                         fetchPorduct();
                         Alert.successData(res.data.message);
@@ -79,7 +95,13 @@ const [data,setData]=useState({});
         } catch (error) {
             Alert.errorData('ການດຳເນິນງານ ເກິດການຜິດຜາດ')
         }
-    };
+    }
+    // ================ delete ============ 
+    const headleDelete = (id) => {
+
+    }
+
+
 
     // ==============================
     const [formsearch, setFormsearch] = useState({
@@ -99,6 +121,7 @@ const [data,setData]=useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [filterName, setFilterName] = useState([])
     const [itemPorduct, setItemProduct] = useState([]);
+    const totalQtyBaht = itemPorduct.reduce((sum, item) => sum + parseFloat(item.qty_all), 0);
     const fetchPorduct = async () => {
         setIsLoading(true);
         try {
@@ -113,15 +136,33 @@ const [data,setData]=useState({});
         }
     }
 
-    // const [filter, setFilter] = useState('');
     const Filter = (event) => {
-        // setFilter(event)
         setItemProduct(filterName.filter(n => n.tile_name.toLowerCase().includes(event)))
+    }
+
+
+    const FilterKg = (value) => {
+        const numericValue = parseInt(value, 10);  // Convert the input value to an integer
+        setItemProduct(filterName.filter(n => parseInt(n.qty_baht, 10) === numericValue));  // Convert qty_baht to an integer and compare
     }
 
     const [formAdd, setFormAdd] = useState(false);
     const handleAddNew = (index) => {
-        setFormAdd(index)
+        setFormAdd(index);
+        if (index === false) {
+            setInputs({
+                product_uuid: '',
+                quantity_all: 0,
+                option_id_fk: '',
+                qty_baht: '',
+                tiles_id_fk: tileId,
+                file_image: null,
+                porduct_detail: ''
+            });
+            setSelectedFile(null);
+            setImageUrl('assets/img/icon/camera.png')
+        }
+
     }
 
     //===========================\\
@@ -130,7 +171,7 @@ const [data,setData]=useState({});
     const handleShowLimit = (value) => {
         setitemsPerPage(value);
     };
-    const [pageNumberLimit, setpageNumberLimit] = useState(5);
+    // const [pageNumberLimit, setpageNumberLimit] = useState(5);
     const [maxPageNumberLimit, setmaxPageNumberLimit] = useState(5);
     const [minPageNumberLimit, setminPageNumberLimit] = useState(0);
 
@@ -232,13 +273,14 @@ const [data,setData]=useState({});
                                         <SelectPicker data={itemType} onChange={(e) => changeSeaerch('type_id_fk', e)} block placeholder="ເລືອກ" />
                                     </div>
 
-                                    {/* <div className="col-sm-3 form-group mb-2">
-                                        <label htmlFor="" className='form-label'>ໂຊນຂາຍ</label>
-                                        <SelectPicker data={itemZone} onChange={(e) => changeSeaerch('zone_id_fk', e)} block placeholder="ເລືອກ" />
-                                    </div> */}
+                                  
                                     <div className="col-sm-3 col-8 form-group mb-2">
-                                        <label htmlFor="" className='form-label'>ນ້ຳໜັກ</label>
+                                        <label htmlFor="" className='form-label'>ຫົວໜ່ວຍນ້ຳໜັກ</label>
                                         <SelectPicker data={itemOption} onChange={(e) => changeSeaerch('option_id_fk', e)} block placeholder="ເລືອກ" />
+                                    </div>
+                                    <div className="col-sm-3 form-group mb-2">
+                                        <label htmlFor="" className='form-label'>ນ້ຳໜັກ</label>
+                                        <Input type='number' onChange={(e) => FilterKg(e)} block placeholder="ນ້ຳໜັກ" />
                                     </div>
                                     <div className="col-sm-3 col-4 mt-4">
                                         <button type="button" onClick={headleSearch} className="btn btn-danger px-3 "><i class="fas fa-search fs-16px"></i> </button>
@@ -273,39 +315,55 @@ const [data,setData]=useState({});
                                             <tr>
                                                 <th width="1%" className='text-center'>ລ/ດ</th>
                                                 <th width="5%" className='text-center'>ຮູບ</th>
-                                                <th className=''>ຊື່ສິນຄ້າ</th>
                                                 <th className='text-center'>ລະຫັດສິນຄ້າ</th>
+                                                <th className=''>ຊື່ສິນຄ້າ</th>
                                                 <th className=''>ນ້ຳໜັກ</th>
                                                 <th className='text-center'>ຈຳນວນ</th>
-                                                <th className=''>ຫົວໜວຍ</th>
+                                                <th className=''>ຫົວໜ່ວຍ</th>
                                                 <th className=''>ປະເພດ</th>
+                                                <th className='text-center'>ຕັ້ງຄ່າ</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {
                                                 isLoading === true ? <Placeholder.Grid rows={9} columns={6} active /> :
                                                     currentItems.length > 0 ? (
-                                                        currentItems.map((item, key) => (
-                                                            <tr key={key}>
-                                                                <td className='text-center' width='1%'>{key + 1}</td>
-                                                                <td className='text-center with-img dt-type-numeric' width='5%'>
-                                                                    <img src={item.file_image !== '' ? url + 'pos/' + item.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' alt="" />
-                                                                </td>
-                                                                <td>{item.tile_name}</td>
-                                                                <td className='text-center'>{item.code_id}</td>
-                                                                <td>{item.qty_baht} {item.option_name}</td>
-                                                                <td className='text-center'>{item.qty_all}</td>
-                                                                <td>{item.unite_name}</td>
-                                                                <td>{item.typeName}</td>
+                                                        <>
+                                                            {currentItems.map((item, key) => (
+                                                                <tr key={key}>
+                                                                    <td className='text-center' width='1%'>{key + 1}</td>
+                                                                    <td className='text-center with-img dt-type-numeric' width='5%'>
+                                                                        <img src={item.file_image !== '' ? url + 'pos/' + item.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' alt="" />
+                                                                    </td>
+                                                                    <td className='text-center'>{item.code_gold}</td>
+                                                                    <td>{item.tile_name}</td>
+                                                                    <td>{item.qty_baht} {item.option_name}</td>
+                                                                    <td className='text-center'>{item.qty_all}</td>
+                                                                    <td>{item.unite_name}</td>
+                                                                    <td>{item.typeName}</td>
+                                                                    <td className='text-center' width='10%'>
+                                                                        <button type='button' onClick={() => handleEdit(item)} className="btn btn-blue btn-xs me-2">
+                                                                            <i className="fa-solid fa-pen-to-square"></i>
+                                                                        </button>
+                                                                        <button type='button' onClick={() => headleDelete(item.product_uuid)} className="btn btn-red btn-xs">
+                                                                            <i className="fa-solid fa-trash"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
 
+                                                            <tr>
+                                                                <td className='text-end' colSpan={5}>ລວມຈຳນວນທັງໝົດ ({data.tile_name})</td>
+                                                                <td className='text-center'><span className='fs-16px text-red'>{totalQtyBaht} </span> (ຈ/ນ)</td>
+                                                                <td colSpan={3}></td>
                                                             </tr>
-                                                        ))
+                                                        </>
+
                                                     ) : (
                                                         <tr>
                                                             <td colSpan="10" className="text-center text-danger">ບໍ່ມີການບິນທຶກຂໍ້ມູນ</td>
                                                         </tr>
-                                                    )
-                                            }
+                                                    )}
                                         </tbody>
                                     </table>
                                     {isLoading === false ?
@@ -334,52 +392,52 @@ const [data,setData]=useState({});
                     {formAdd && (
                         <div className="col-sm-4">
                             <form onSubmit={handleSubmit}>
-                            <div className="widget-todolist rounded mb-4">
-                                <div class="widget-todolist-header">
-                                    <div class="widget-todolist-header-title">ຟອມເພີ່ມຂໍ້ມູນສິນຄ້າ</div>
-                                    <div class="widget-todolist-header-total fs-14px"><span className='badge bg-danger rounded-pill' role='button' onClick={() => handleAddNew(false)}><i class="fa-solid fa-xmark" /></span></div>
-                                </div>
-                                <div class="widget-todolist-body p-3">
-                                    <div className="form-group text-center mb-2">
-                                        <center>
-                                            <div class="h-100px w-100px position-relative">
-                                                <label role='button'>
-                                                    <input type="file" id="fileInput" name='pattern_img' onChange={handleFileChange} accept="image/*" className='hide' />
-                                                    <img src={imageUrl} class="w-100px h-100px rounded-3" />
-                                                </label>
-                                                {selectedFile && (
-                                                    <span role='button' onClick={handleClearImage} class="w-20px h-20px p-0 d-flex align-items-center justify-content-center badge bg-danger text-white position-absolute end-0 top-0 rounded-pill mt-n2 me-n4">x</span>
-                                                )}
-                                            </div>
-                                        </center>
+                                <div className="widget-todolist rounded mb-4">
+                                    <div class="widget-todolist-header">
+                                        <div class="widget-todolist-header-title">ຟອມເພີ່ມຂໍ້ມູນສິນຄ້າ</div>
+                                        <div class="widget-todolist-header-total fs-14px"><span className='badge bg-danger rounded-pill' role='button' onClick={() => handleAddNew(false)}><i class="fa-solid fa-xmark" /></span></div>
                                     </div>
-                                    <div className="form-group mb-2 col-12">
-                                        <label htmlFor="" className='form-label'>ຊື່ປະເພດ</label>
-                                        <Input name='qty_baht' value={data.tile_name} readOnly />
-                                    </div>
-                                    <div className="form-group mb-2 col-12">
-                                        <label htmlFor="" className='form-label'>ນ້ຳໜັກ</label>
-                                        <Input type="number" name='qty_baht' value={inputs.qty_baht} onChange={(e) => handleChange('qty_baht', e)} placeholder='ນ້ຳໜັກ' required />
-                                    </div>
+                                    <div class="widget-todolist-body p-3">
+                                        <div className="form-group text-center mb-2">
+                                            <center>
+                                                <div class="h-100px w-100px position-relative">
+                                                    <label role='button'>
+                                                        <input type="file" id="fileInput" name='pattern_img' onChange={handleFileChange} accept="image/*" className='hide' />
+                                                        <img src={imageUrl} class="w-100px h-100px rounded-3" />
+                                                    </label>
+                                                    {selectedFile && (
+                                                        <span role='button' onClick={handleClearImage} class="w-20px h-20px p-0 d-flex align-items-center justify-content-center badge bg-danger text-white position-absolute end-0 top-0 rounded-pill mt-n2 me-n4">x</span>
+                                                    )}
+                                                </div>
+                                            </center>
+                                        </div>
+                                        <div className="form-group mb-2 col-12">
+                                            <label htmlFor="" className='form-label'>ຊື່ປະເພດ</label>
+                                            <Input name='qty_baht' value={data.tile_name} readOnly />
+                                        </div>
+                                        <div className="form-group mb-2 col-12">
+                                            <label htmlFor="" className='form-label'>ນ້ຳໜັກ</label>
+                                            <Input type="number" name='qty_baht' value={inputs.qty_baht} onChange={(e) => handleChange('qty_baht', e)} placeholder='ນ້ຳໜັກ' required />
+                                        </div>
 
-                                    <div className="form-group mb-2 col-12">
-                                        <label htmlFor="" className='form-label'>ຂະໜາດ </label>
-                                        <Select options={itemOption} value={itemOption.find(obj => obj.value === inputs.option_id_fk)} onChange={(e) => handleChange('option_id_fk', e.value)} block placeholder="ເລືອກ" required />
+                                        <div className="form-group mb-2 col-12">
+                                            <label htmlFor="" className='form-label'>ຂະໜາດ </label>
+                                            <Select options={itemOption} value={itemOption.find(obj => obj.value === inputs.option_id_fk)} onChange={(e) => handleChange('option_id_fk', e.value)} block placeholder="ເລືອກ" required />
+                                        </div>
+                                        <div className="form-group mb-2 col-12">
+                                            <label htmlFor="" className='form-label'>ລາຍລະອຽດ </label>
+                                            <Input as='textarea' onChange={(e) => handleChange('porduct_detail', e)} placeholder='ລາຍລະອຽດ.....' />
+                                        </div>
                                     </div>
-                                    <div className="form-group mb-2 col-12">
-                                        <label htmlFor="" className='form-label'>ລາຍລະອຽດ </label>
-                                        <Input as='textarea' onChange={(e) => handleChange('porduct_detail', e)} placeholder='ລາຍລະອຽດ.....' />
+                                    <div className="pagination row p-2 pt-0">
+                                        <div className="col-sm-6">
+                                            <button type='reset' className="btn btn-danger block w-100 rounded-pill px-3"><i className="fa-solid fa-rotate"></i> ລ້າງ</button>
+                                        </div>
+                                        <div className="col-sm-6">
+                                            <button type='submit' className="btn btn-primary w-100 rounded-pill px-3"><i className="fa-regular fa-floppy-disk"></i> ບັນທຶກ</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="pagination row p-2 pt-0">
-                                    <div className="col-sm-6">
-                                        <button type='reset' className="btn btn-danger block w-100 rounded-pill px-3"><i className="fa-solid fa-rotate"></i> ລ້າງ</button>
-                                    </div>
-                                    <div className="col-sm-6">
-                                        <button type='submit' className="btn btn-primary w-100 rounded-pill px-3"><i className="fa-regular fa-floppy-disk"></i> ບັນທຶກ</button>
-                                    </div>
-                                </div>
-                            </div>
                             </form>
                         </div>
                     )}

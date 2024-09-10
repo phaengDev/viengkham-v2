@@ -270,7 +270,7 @@ export default function SetPirceSale() {
                                                         <thead className='thead-plc'>
                                                             <tr>
                                                                 <th width="1%" className='text-center'>ລ/ດ</th>
-                                                                <th className=''>ຫົວໜວຍນ້ຳໜັກ</th>
+                                                                <th className=''>ຫົວໜ່ວຍນ້ຳໜັກ</th>
                                                                 <th className='text-center'>ກຣາມ</th>
                                                                 <th className='text-center'>ຕັ້ງຄ່າ</th>
                                                             </tr>
@@ -454,9 +454,9 @@ export default function SetPirceSale() {
                     <Modal.Body>
                         <div className="row">
                             <div className="col-sm-12 mb-2">
-                                <label htmlFor="" className='form-label'>ຫົວໜວຍນ້ຳໜັກ </label>
+                                <label htmlFor="" className='form-label'>ຫົວໜ່ວຍນ້ຳໜັກ </label>
                                 <input type="text" value={values.option_id} className='hide' />
-                                <Input value={values.option_name} onChange={(e) => handleOption('option_name', e)} placeholder='ຫົວໜວຍນ້ຳໜັກ' block readOnly />
+                                <Input value={values.option_name} onChange={(e) => handleOption('option_name', e)} placeholder='ຫົວໜ່ວຍນ້ຳໜັກ' block readOnly />
                             </div>
                             <div className="col-sm-12 mb-2">
                                 <label htmlFor="" className='form-label'>ກຣາມ</label>

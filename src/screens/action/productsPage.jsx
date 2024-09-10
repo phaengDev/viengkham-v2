@@ -24,7 +24,7 @@ function ProductsPage() {
         qty_baht: '',
         tiles_id_fk: '',
         file_image: null,
-        porduct_detail:''
+        porduct_detail: ''
     })
     const handleChange = (name, value) => {
         setInputs({
@@ -83,7 +83,7 @@ function ProductsPage() {
                 qty_baht: '',
                 tiles_id_fk: '',
                 file_image: null,
-                porduct_detail:''
+                porduct_detail: ''
             });
             setImageUrl('assets/img/icon/camera.png');
         }
@@ -98,7 +98,7 @@ function ProductsPage() {
             qty_baht: item.qty_baht,
             tiles_id_fk: item.tiles_id_fk,
             file_image: null,
-            porduct_detail:item.porduct_detail
+            porduct_detail: item.porduct_detail
         })
         if (item.file_image) {
             setImageUrl(url + 'pos/' + item.file_image);
@@ -156,6 +156,7 @@ function ProductsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [filterName, setFilterName] = useState([])
     const [itemPorduct, setItemProduct] = useState([]);
+    const totalQtyBaht = itemPorduct.reduce((sum, item) => sum + parseFloat(item.qty_all), 0);
     const fetchPorduct = async () => {
         setIsLoading(true);
         // console.log(formsearch)
@@ -171,10 +172,13 @@ function ProductsPage() {
         }
     }
 
-    const [filter, setFilter] = useState('');
+    // const [filter, setFilter] = useState('');
     const Filter = (event) => {
-        setFilter(event)
-        setItemProduct(filterName.filter(n => n.tile_name.toLowerCase().includes(event)))
+        const searchTerm = event.toLowerCase(); // Convert the input to lowercase for case-insensitive comparison
+        setItemProduct(filterName.filter(n => 
+            n.tile_name.toLowerCase().includes(searchTerm) || // Check if tile_name includes the search term
+            n.code_gold.toLowerCase().includes(searchTerm)    // Check if code_gold includes the search term
+        ));
     }
 
     //===========================\\
@@ -354,7 +358,7 @@ function ProductsPage() {
                                         <SelectPicker data={itemTile} onChange={(e) => changeSeaerch('tiles_id_fk', e)} block placeholder="ເລືອກ" />
                                     </div>
                                     <div className="col-sm-3 col-8 form-group mb-2">
-                                        <label htmlFor="" className='form-label'>ປະເພດຫົວໜວຍ</label>
+                                        <label htmlFor="" className='form-label'>ປະເພດຫົວໜ່ວຍ</label>
                                         <SelectPicker data={itemOption} onChange={(e) => changeSeaerch('option_id_fk', e)} block placeholder="ເລືອກ" />
                                     </div>
                                     <div className="col-sm-3 col-4 mt-4">
@@ -395,7 +399,7 @@ function ProductsPage() {
                                                 {/* <th className='text-center'>ລະຫັດບາໂຄດ</th> */}
                                                 <th className=''>ນ້ຳໜັກ</th>
                                                 <th className='text-center'>ຈຳນວນລວມ</th>
-                                                <th className=''>ຫົວໜວຍ</th>
+                                                <th className=''>ຫົວໜ່ວຍ</th>
                                                 <th className=''>ປະເພດ</th>
                                                 <th className='text-center' width='10%'>ການຕັ້ງຄ່າ</th>
                                             </tr>
@@ -404,7 +408,8 @@ function ProductsPage() {
                                             {
                                                 isLoading === true ? <tr><td colSpan={10}><Placeholder.Grid rows={10} columns={6} active /></td></tr> :
                                                     currentItems.length > 0 ? (
-                                                        currentItems.map((item, key) => {
+                                                        <>
+                                                        { currentItems.map((item, key) => {
                                                             const namePs = item.tile_name + ' ( ' + item.qty_baht + '' + item.option_name + ' ) ';
                                                             return (
                                                                 <tr key={key}>
@@ -412,7 +417,7 @@ function ProductsPage() {
                                                                     <td className='text-center with-img dt-type-numeric' width='5%'>
                                                                         <img src={item.file_image !== '' ? url + 'pos/' + item.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' role='button' onClick={() => viewImage(item.product_uuid, item.file_image, namePs)} alt="" />
                                                                     </td>
-                                                                    <td className='text-center'>{item.code_id}</td>
+                                                                    <td className='text-center'>{item.code_gold}</td>
                                                                     <td>{item.tile_name}</td>
                                                                     <td>{item.qty_baht} {item.option_name}</td>
                                                                     <td className='text-center'>{item.qty_all}</td>
@@ -428,7 +433,13 @@ function ProductsPage() {
                                                                     </td>
                                                                 </tr>
                                                             )
-                                                        })
+                                                        }) }
+                                                        <tr>
+                                                        <td className='text-end' colSpan={5}>ລວມຈຳນວນທັງໝົດ</td>
+                                                        <td className='text-center'><span className='fs-16px text-red'>{totalQtyBaht} </span> (ຈ/ນ)</td>
+                                                        <td colSpan={3}></td>
+                                                    </tr>
+                                                    </>
                                                     ) : (
                                                         <tr>
                                                             <td colSpan="10" className="text-center text-danger">ບໍ່ມີການບິນທຶກຂໍ້ມູນ</td>
@@ -464,52 +475,52 @@ function ProductsPage() {
                         <div className="col-sm-4 ">
 
                             <div class="navbar navbar-sticky  d-xl-block my-n4 py-4 h-100 ">
-                            
-                                    <div class={`panel panel-inverse border-4 border-bottom nav  rounded-4 ${formEdit === false ? 'border-green' : 'border-red'}`}>
-                                        <div class={`panel-heading  text-white ${formEdit === false ? 'bg-green-700' : 'bg-red-700'}`}>
-                                            <h4 className="panel-title fs-16px">{formEdit === true ? 'ຟອມແກ້ໄຂຂໍ້ມູນສິນຄ້າ' : 'ຟອມບັນທຶກຂໍ້ມູນສິນຄ້າ'}</h4>
-                                            <div className="panel-heading-btn">
-                                                <span className="btn btn-xs btn-icon btn-danger" onClick={() => headleAddNew(false)} data-toggle="panel-remove"><i className="fa fa-times fa-lg"></i></span>
-                                            </div>
-                                        </div>
-                                        <div className="panel-body row">
-                                            <form onSubmit={handleSubmit}>
-                                                <div className="form-group text-center mb-3 pos-img ">
-                                                    {selectedFile && (
-                                                        <span className="badge text-danger topright " onClick={handleClearImage}><i className="fa-solid fa-circle-xmark fa-xl"></i> </span>
-                                                    )}
-                                                    <label className="w-50" role='button'>
-                                                        <input type="file" id="fileInput" name='file_image' onChange={handleFileChange} accept="image/*" className='hide' />
-                                                        <img className="w-120px rounded" src={imageUrl} alt="" />
-                                                    </label>
-                                                </div>
-                                                <div className="form-group mb-2 col-12">
-                                                    <label htmlFor="" className='form-label'>ເລືອກລາຍການສິນຄ້າ</label>
-                                                    <Select options={itemTile} value={itemTile.find(obj => obj.value === inputs.tiles_id_fk)} onChange={(e) => handleChange('tiles_id_fk', e.value)} placeholder="ເລືອກສິນຄ້າ" required />
-                                                    {/* <SelectPicker name='tiles_id_fk' value={inputs.tiles_id_fk} onChange={(e) => handleChange('tiles_id_fk', e)} data={itemTile} block placeholder="ເລືອກສິນຄ້າ" required /> */}
-                                                </div>
 
-                                                <div className="form-group mb-2 col-12">
-                                                    <label htmlFor="" className='form-label'>ນ້ຳໜັກ</label>
-                                                    <Input type="number" name='qty_baht' value={inputs.qty_baht} onChange={(e) => handleChange('qty_baht', e)} placeholder='ນ້ຳໜັກ' required />
-                                                </div>
-
-                                                <div className="form-group mb-2 col-12">
-                                                    <label htmlFor="" className='form-label'>ຂະໜາດ </label>
-                                                    <Select options={itemOption} value={itemOption.find(obj => obj.value === inputs.option_id_fk)} onChange={(e) => handleChange('option_id_fk', e.value)} block placeholder="ເລືອກ" required />
-                                                    {/* <SelectPicker name='option_id_fk' value={inputs.option_id_fk} onChange={(e) => handleChange('option_id_fk', e)} data={itemOption} block placeholder="ເລືອກ" required /> */}
-                                                </div>
-                                                <div className="pagination row mt-3 p-4">
-                                                    <div className="col-sm-6">
-                                                        <button type='reset' className="btn btn-danger block w-100 rounded-pill px-3"><i className="fa-solid fa-rotate"></i> ລ້າງ</button>
-                                                    </div>
-                                                    <div className="col-sm-6">
-                                                        <button type='submit' className="btn btn-primary w-100 rounded-pill px-3">{formEdit === false ? (<><i className="fa-regular fa-floppy-disk"></i> ບັນທຶກ</>) : (<><i className="fa-solid fa-pen"></i> ແກ້ໄຂ້</>)}</button>
-                                                    </div>
-                                                </div>
-                                            </form>
+                                <div class={`panel panel-inverse border-4 border-bottom nav  rounded-4 ${formEdit === false ? 'border-green' : 'border-red'}`}>
+                                    <div class={`panel-heading  text-white ${formEdit === false ? 'bg-green-700' : 'bg-red-700'}`}>
+                                        <h4 className="panel-title fs-16px">{formEdit === true ? 'ຟອມແກ້ໄຂຂໍ້ມູນສິນຄ້າ' : 'ຟອມບັນທຶກຂໍ້ມູນສິນຄ້າ'}</h4>
+                                        <div className="panel-heading-btn">
+                                            <span className="btn btn-xs btn-icon btn-danger" onClick={() => headleAddNew(false)} data-toggle="panel-remove"><i className="fa fa-times fa-lg"></i></span>
                                         </div>
                                     </div>
+                                    <div className="panel-body row">
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="form-group text-center mb-3 pos-img ">
+                                                {selectedFile && (
+                                                    <span className="badge text-danger topright " onClick={handleClearImage}><i className="fa-solid fa-circle-xmark fa-xl"></i> </span>
+                                                )}
+                                                <label className="w-50" role='button'>
+                                                    <input type="file" id="fileInput" name='file_image' onChange={handleFileChange} accept="image/*" className='hide' />
+                                                    <img className="w-120px rounded" src={imageUrl} alt="" />
+                                                </label>
+                                            </div>
+                                            <div className="form-group mb-2 col-12">
+                                                <label htmlFor="" className='form-label'>ເລືອກລາຍການສິນຄ້າ</label>
+                                                <Select options={itemTile} value={itemTile.find(obj => obj.value === inputs.tiles_id_fk)} onChange={(e) => handleChange('tiles_id_fk', e.value)} placeholder="ເລືອກສິນຄ້າ" required />
+                                                {/* <SelectPicker name='tiles_id_fk' value={inputs.tiles_id_fk} onChange={(e) => handleChange('tiles_id_fk', e)} data={itemTile} block placeholder="ເລືອກສິນຄ້າ" required /> */}
+                                            </div>
+
+                                            <div className="form-group mb-2 col-12">
+                                                <label htmlFor="" className='form-label'>ນ້ຳໜັກ</label>
+                                                <Input type="number" name='qty_baht' value={inputs.qty_baht} onChange={(e) => handleChange('qty_baht', e)} placeholder='ນ້ຳໜັກ' required />
+                                            </div>
+
+                                            <div className="form-group mb-2 col-12">
+                                                <label htmlFor="" className='form-label'>ຂະໜາດ </label>
+                                                <Select options={itemOption} value={itemOption.find(obj => obj.value === inputs.option_id_fk)} onChange={(e) => handleChange('option_id_fk', e.value)} block placeholder="ເລືອກ" required />
+                                                {/* <SelectPicker name='option_id_fk' value={inputs.option_id_fk} onChange={(e) => handleChange('option_id_fk', e)} data={itemOption} block placeholder="ເລືອກ" required /> */}
+                                            </div>
+                                            <div className="pagination row mt-3 p-4">
+                                                <div className="col-sm-6">
+                                                    <button type='reset' className="btn btn-danger block w-100 rounded-pill px-3"><i className="fa-solid fa-rotate"></i> ລ້າງ</button>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <button type='submit' className="btn btn-primary w-100 rounded-pill px-3">{formEdit === false ? (<><i className="fa-regular fa-floppy-disk"></i> ບັນທຶກ</>) : (<><i className="fa-solid fa-pen"></i> ແກ້ໄຂ້</>)}</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
 
 

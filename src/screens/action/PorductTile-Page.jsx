@@ -179,7 +179,7 @@ function PorductTile() {
     // const handleShowLimit = (value) => {
     //     setitemsPerPage(value);
     // };
-    const [pageNumberLimit, setpageNumberLimit] = useState(5);
+    // const [pageNumberLimit, setpageNumberLimit] = useState(5);
     const [maxPageNumberLimit, setmaxPageNumberLimit] = useState(5);
     const [minPageNumberLimit, setminPageNumberLimit] = useState(0);
 
@@ -217,8 +217,8 @@ function PorductTile() {
         setcurrentPage(currentPage + 1);
 
         if (currentPage + 1 > maxPageNumberLimit) {
-            setmaxPageNumberLimit(maxPageNumberLimit + pageNumberLimit);
-            setminPageNumberLimit(minPageNumberLimit + pageNumberLimit);
+            setmaxPageNumberLimit(maxPageNumberLimit + 5);
+            setminPageNumberLimit(minPageNumberLimit + 5);
         }
     };
 
@@ -226,9 +226,9 @@ function PorductTile() {
         setcurrentPage(currentPage - 1);
         setI(indexOfLastItem - 1)
 
-        if ((currentPage - 1) % pageNumberLimit == 0) {
-            setmaxPageNumberLimit(maxPageNumberLimit - pageNumberLimit);
-            setminPageNumberLimit(minPageNumberLimit - pageNumberLimit);
+        if ((currentPage - 1) % 5 === 0) {
+            setmaxPageNumberLimit(maxPageNumberLimit - 5);
+            setminPageNumberLimit(minPageNumberLimit - 5);
         }
     };
     //===========================\\
@@ -265,7 +265,7 @@ function PorductTile() {
                                     <th width="1%" className='text-center'>ຮູບ</th>
                                     <th className='text-center'>ລະຫັດ</th>
                                     <th className=''>ຊື່ພະລິດຕະພັນ</th>
-                                    <th className=''>ຫົວໜວຍ</th>
+                                    <th className=''>ຫົວໜ່ວຍ</th>
                                     <th>ຮູບປະພັນ</th>
                                     <th className='text-center'>ລາຍການ</th>
                                     <th className='text-center' width='10%'>ການຕັ້ງຄ່າ</th>
@@ -347,8 +347,8 @@ function PorductTile() {
                                 <Input name='tile_name' value={inputs.tile_name} onChange={(e) => handleChange('tile_name', e)} placeholder='ຊື່ພະລິດຕະພັນ' required />
                             </div>
                             <div className="form-group mb-2 col-sm-6">
-                                <label htmlFor="" className='form-label'>ຫົວໜວຍ</label>
-                                <SelectPicker name='unite_id_fk' value={inputs.unite_id_fk} data={itemUnite} block onChange={(e) => handleChange('unite_id_fk', e)} placeholder='ຫົວໜວຍ' />
+                                <label htmlFor="" className='form-label'>ຫົວໜ່ວຍ</label>
+                                <SelectPicker name='unite_id_fk' value={inputs.unite_id_fk} data={itemUnite} block onChange={(e) => handleChange('unite_id_fk', e)} placeholder='ຫົວໜ່ວຍ' />
                             </div>
                             <div className="form-group col-sm-6 mb-2">
                                 <label htmlFor="" className='form-label'>ຮູບປະພັນ </label>

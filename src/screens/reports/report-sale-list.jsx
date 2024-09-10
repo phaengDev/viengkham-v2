@@ -145,33 +145,33 @@ export default function ReportSaleList() {
                   <tbody>
                     {
                       isLoading === true ? <tr>
-                      <td colSpan={'12'}  className='border-0'><Placeholder.Grid rows={11} columns={6} active /></td>
+                      <td colSpan={'13'}  className='border-0 td'><Placeholder.Grid rows={11} columns={6} active /></td>
                   </tr>  :
                         itemData.length > 0 ? (
                           <>
                             {itemData.map((val, key) => (
                               <tr key={key}>
-                                <td className='text-center'>{key + 1}</td>
-                                <td className='text-center'>{moment(val.create_date).format('DD/MM/YYYY hh:mm')}</td>
-                                <td className='text-center'>{val.code_id}</td>
-                                <td>{val.tile_name}</td>
-                                <td className='text-center'>{val.qty_baht+' '+val.option_name}</td>
-                                <td className='text-center'>{val.qty_grams}/ g</td>
+                                <td className='text-center td'>{key + 1}</td>
+                                <td className='text-center td'>{moment(val.create_date).format('DD/MM/YYYY hh:mm')}</td>
+                                <td className='text-center td'>{val.code_id}</td>
+                                <td className='td'>{val.tile_name}</td>
+                                <td className='text-center td'>{val.qty_baht+' '+val.option_name}</td>
+                                <td className='text-center td'>{val.qty_grams}/ g</td>
                               <td> {val.qty_sale_add >0 ?(<span className='text-green'>{val.qty_sale_add+' '+val.option_name}</span>):'-'}</td>
-                              <td className='text-center'>{val.order_qty+'.'+val.unite_name}</td>
-                                <td className='text-end'>{numeral(val.qty_sale_add > 0 ? val.price_grams*val.qty_gram_add: val.price_sale*val.order_qty).format('0,00')}</td>
+                              <td className='text-center td'>{val.order_qty+'.'+val.unite_name}</td>
+                                <td className='text-end td'>{numeral(val.qty_sale_add > 0 ? val.price_grams*val.qty_gram_add: val.price_sale*val.order_qty).format('0,00')}</td>
 
-                                <td className={`text-end ${val.price_pattern > 0 ?'text-green':''}`}>{val.price_pattern > 0 ?'+':''} {numeral(val.price_pattern*val.qty_baht).format('0,00')}</td>
-                                <td className='text-end'>{numeral((val.total_balance)).format('0,00')}</td>
-                                <td>{val.zone_name}</td>
-                                <td>{val.staff_name}</td>
+                                <td className={`text-end td ${val.price_pattern > 0 ?'text-green':''}`}>{val.price_pattern > 0 ?'+':''} {numeral(val.price_pattern*val.qty_baht).format('0,00')}</td>
+                                <td className='text-end td'>{numeral((val.total_balance)).format('0,00')}</td>
+                                <td className='td'>{val.zone_name}</td>
+                                <td className='td'>{val.staff_name}</td>
                               </tr>
                             ))}
                            
                           </>
                         ) : (
                           <tr>
-                            <td colSpan={14} className='text-center text-danger'>ບໍ່ລາຍການຂາຍທີ່ທ່ານຊອກຫາ</td>
+                            <td colSpan={14} className='text-center td text-danger'>ບໍ່ລາຍການຂາຍທີ່ທ່ານຊອກຫາ</td>
                             </tr>
                         )}
                   </tbody>

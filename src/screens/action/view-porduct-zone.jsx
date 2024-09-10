@@ -192,7 +192,7 @@ export default function ViewPorductZone() {
                                                 <th className='text-center'>ລະຫັດສິນຄ້າ</th>
                                                 <th className=''>ນ້ຳໜັກ</th>
                                                 <th className='text-center'>ຈຳນວນ</th>
-                                                <th className=''>ຫົວໜວຍ</th>
+                                                <th className=''>ຫົວໜ່ວຍ</th>
                                                 <th className=''>ປະເພດ</th>
                                                 <th className='text-center' width='10%'>ໂຊນຂາຍ</th>
                                             </tr>

@@ -36,6 +36,9 @@ import RateChange from '../screens/setting/rateChange';
 import StockPages from '../screens/action/stockPages';
 import ApplyForJob from '../website/apply-for-job';
 import RecomMended from '../website/RecomMended';
+import CheckBillOnline from '../screens/Check-online/Check-bill-online';
+
+
 import { Routes, Route, Navigate } from 'react-router-dom';
 export default function AppContent() {
  
@@ -79,6 +82,7 @@ export default function AppContent() {
             <Route path='/apply-job' element={<ApplyForJob />}/> 
             <Route path='/stock-all' element={<StockPages/>}/>
             <Route path='/Recd' element={<RecomMended/>} />
+            <Route path='/check-bill' element={<CheckBillOnline/>} />
         </Routes>
   )
 }

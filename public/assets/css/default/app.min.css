@@ -28054,16 +28054,18 @@ a:focus {
 
 .pos .pos-sidebar .pos-sidebar-header {
     padding: .703125rem .9375rem;
-    background: var(--bs-gold);
+    background: var(--bs-plc);
     color: var(--bs-pos-sidebar-header-color);
     position: relative;
     display: flex;
-    align-items: center
+    align-items: center;
+    margin-top: -10px;
 }
 
 @media (min-width:992px) {
     .pos .pos-sidebar .pos-sidebar-header {
-        border-radius: 6px 6px 0 0
+        border-radius: 6px 6px 0 0;
+        margin-top: -8px;
     }
 }
 

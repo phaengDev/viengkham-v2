@@ -1,6 +1,6 @@
-import React, { useState, useEffect,useRef} from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { DatePicker, SelectPicker, Input, InputGroup, Placeholder,Modal,Button } from 'rsuite';
+import { DatePicker, SelectPicker, Input, InputGroup, Placeholder, Modal, Button } from 'rsuite';
 import { useStaff } from '../../utils/selectOption';
 import { Config } from '../../config/connect';
 import axios from 'axios';
@@ -12,7 +12,7 @@ function ReportsaleDaily() {
   const itemStaff = useStaff();
   const api = Config.urlApi;
   const [open, setOpen] = React.useState(false);
-  const handleModal=(index)=>{
+  const handleModal = (index) => {
     setOpen(index)
   }
   const datastt = [
@@ -62,14 +62,14 @@ function ReportsaleDaily() {
     const currency = item.currency_name;
     const genus = item.genus;
     if (!acc[currency]) {
-        acc[currency] = {
-            balance_total:0,
-            balance_totalpay: 0,
-            balance_cash: 0,
-            balance_transfer: 0,
-            balance_return: 0,
-            genus: genus, // Capture genus here
-        };
+      acc[currency] = {
+        balance_total: 0,
+        balance_totalpay: 0,
+        balance_cash: 0,
+        balance_transfer: 0,
+        balance_return: 0,
+        genus: genus, // Capture genus here
+      };
     }
 
     acc[currency].balance_totalpay += parseFloat(item.balance_totalpay);
@@ -78,38 +78,38 @@ function ReportsaleDaily() {
     acc[currency].balance_return += parseFloat(item.balance_return);
     acc[currency].balance_total += parseFloat(item.balance_total);
     return acc;
-}, {});
-const formatNumber = (num) => numeral(num).format('0,00');
+  }, {});
+  const formatNumber = (num) => numeral(num).format('0,00');
 
-//======================================
-const [detail,setDetail]=useState([]);
-const [billNo,setBillNo]=useState('');
-const [id, setId] = useState('');
-const handleView = async (id, Bill) => {
-  setBillNo(Bill);
-  setId(id);
-  try {
-    const response = await axios.post(api + 'sale-r/veiw/'+id);
-    const jsonData = response.data;
-    setDetail(jsonData);
-  setOpen(true);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  } finally {
-    // setIsLoading(false);
-  }
-};
-    // ============== // ============
+  //======================================
+  const [detail, setDetail] = useState([]);
+  const [data, setData] = useState({});
+  const [id, setId] = useState('');
+  const handleView = async (id, data) => {
+    setData(data);
+    setId(id);
+    try {
+      const response = await axios.post(api + 'sale-r/veiw/' + id);
+      const jsonData = response.data;
+      setDetail(jsonData);
+      setOpen(true);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      // setIsLoading(false);
+    }
+  };
+  // ============== // ============
 
-const exportToExcel = () => {
-  const table = document.getElementById('table-to-xls');
-  const worksheet = XLSX.utils.table_to_sheet(table);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "ຍອດຂາຍລວມ");
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(dataBlob, "ລາຍງານການຂາຍລວມ.xlsx");
-};
+  const exportToExcel = () => {
+    const table = document.getElementById('table-to-xls');
+    const worksheet = XLSX.utils.table_to_sheet(table);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ຍອດຂາຍລວມ");
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(dataBlob, "ລາຍງານການຂາຍລວມ.xlsx");
+  };
   useEffect(() => {
     fetchDataReport();
   }, [])
@@ -144,7 +144,7 @@ const exportToExcel = () => {
               </div>
               <div className="col-sm-3 col-lg-2 mt-4">
                 <button type='button' onClick={handleSaerch} className='btn btn-danger rounded ms-1'><i className="fas fa-search fa-lg"></i></button>
-                <button type='button' onClick={exportToExcel}  className='btn btn-green rounded ms-1'><i className="fas fa-file-excel fa-lg"></i></button>
+                <button type='button' onClick={exportToExcel} className='btn btn-green rounded ms-1'><i className="fas fa-file-excel fa-lg"></i></button>
               </div>
             </div>
 
@@ -191,21 +191,21 @@ const exportToExcel = () => {
                 <tbody>
                   {
                     isLoading === true ? <tr>
-                    <td colSpan={'14'}  className='border-0 bg-white'><Placeholder.Grid rows={9} columns={6} active /></td>
-                </tr> :
+                      <td colSpan={'14'} className='border-0 bg-white'><Placeholder.Grid rows={9} columns={6} active /></td>
+                    </tr> :
                       itemData.length > 0 ? (
                         <>
                           {itemData.map((val, key) => (
                             <tr key={key}>
                               <td className='text-center'>{key + 1}</td>
                               <td className='text-center'>{moment(val.sale_date).format('DD/MM/YYYY hh:mm')}</td>
-                              <td className='text-center'><span role='button' className='text-h-blue' onClick={()=>handleView(val.sale_uuid,val.sale_billNo)} >{val.sale_billNo}</span> </td>
+                              <td className='text-center'><span role='button' className='text-h-blue' onClick={() => handleView(val.sale_uuid, val)} >{val.sale_billNo}</span> </td>
                               <td>{val.first_name + ' ' + val.last_name}</td>
                               <td className='text-end'>{numeral(val.balance_total).format('0,00')} ₭</td>
                               <td className='text-end'>{numeral(val.balance_totalpay).format('0,00')} {val.genus}</td>
                               <td className='text-end'>{numeral(val.balance_cash).format('0,00')} {val.genus}</td>
                               <td className='text-end'>{numeral(val.balance_transfer).format('0,00')} {val.genus}</td>
-                              <td className='text-end'>{numeral(val.balance_payment).format('0,00')} </td>
+                              <td className='text-end'>{numeral(val.balance_payment).format('0,00')}  {val.genus}</td>
                               <td className='text-end'>{numeral(val.balance_return).format('0,00')} ₭</td>
                               <td>{val.cus_fname + ' ' + val.cus_lname}</td>
                               <td>{val.cus_tel}</td>
@@ -214,7 +214,7 @@ const exportToExcel = () => {
                               <td>{val.status_off_sale === 1 ? 'ຄ້າງປິດ' : 'ປິດຍອດ'}</td>
                             </tr>
                           ))}
-                         
+
                         </>
                       ) : (
                         <tr>
@@ -224,85 +224,133 @@ const exportToExcel = () => {
                 </tbody>
                 <tfoot>
                   {itemData.length > 0 && (
-                     Object.keys(sumData).map((currency, key) => (
+                    Object.keys(sumData).map((currency, key) => (
                       <tr key={key}>
-                            <td colSpan={5} className='text-end'>ລວມຍອດທັງໝົດ ({currency})</td>
-                            <td className='text-end'>{formatNumber(sumData[currency].balance_totalpay)} {sumData[currency].genus}</td>
-                            <td className='text-end'>{formatNumber(sumData[currency].balance_cash)} {sumData[currency].genus}</td>
-                            <td className='text-end'>{formatNumber(sumData[currency].balance_transfer)} {sumData[currency].genus}</td>
-                            <td className='text-end'>{formatNumber(0)}</td>
-                            <td className='text-end'>{formatNumber(sumData[currency].balance_return)} ₭</td>
-                            <td colSpan={5}></td>
-                          </tr>
-                     ))
-                          )}
+                        <td colSpan={5} className='text-end'>ລວມຍອດທັງໝົດ ({currency})</td>
+                        <td className='text-end'>{formatNumber(sumData[currency].balance_totalpay)} {sumData[currency].genus}</td>
+                        <td className='text-end'>{formatNumber(sumData[currency].balance_cash)} {sumData[currency].genus}</td>
+                        <td className='text-end'>{formatNumber(sumData[currency].balance_transfer)} {sumData[currency].genus}</td>
+                        <td className='text-end'>{formatNumber(0)}</td>
+                        <td className='text-end'>{formatNumber(sumData[currency].balance_return)} ₭</td>
+                        <td colSpan={5}></td>
+                      </tr>
+                    ))
+                  )}
                 </tfoot>
               </table>
             </div>
           </div>
         </div>
-       
-     {/* <Invoice ref={invoiceRef} invoice={invoice} /> */}
-    
-        <Modal size={'lg'} open={open} onClose={()=>handleModal(false)}>
-        <Modal.Header>
-          <Modal.Title className='py-2'>ລາຍລະອຽດບິນ: {billNo}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        <table className="table  table-bordered table-bordered align-middle w-100 text-nowrap">
-                <thead className='thead-plc'>
-                  <tr>
-                    <th width="1%" className='text-center'>ລ/ດ</th>
-                    <th className='text-center'>ລະຫັດ</th>
-                    <th className=''>ຊື່ສິນຄ້າ</th>
-                    <th className='text-center'>ນ້ຳໜັກ</th>
-                    <th className='text-center'>ກຣາມ</th>
-                    <th className='text-center'>ຊື້ເພີ່ມ</th>
-                    <th className='text-center'>ຈຳນວນ</th>
-                    <th className='text-end'>ຄ່າລາຍ</th>
-                    <th className='text-end'>ລວມເງິນ</th>
-                    <th className=''>ໂຊນຂາຍ</th>
-                    <th className=''>ພະນັກງານຂາຍ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detail.map((item,index)=>(
+
+        {/* <Invoice ref={invoiceRef} invoice={invoice} /> */}
+
+        <Modal size={'lg'} open={open} onClose={() => handleModal(false)}>
+          <Modal.Header>
+            <Modal.Title className='py-2'>ລາຍລະອຽດບິນ: {data.sale_billNo}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+
+            <div className="row mb-3">
+              <div className="col-12 text-center">
+                <img src="./assets/img/logo/logo.png" className='w-10' alt="" />
+              </div>
+              <div className="col-6">
+                <div>ຮ້ານຄຳ ນາງວຽງຄຳ </div>
+                <div>ເບີໂທລະສັບ: 02095555609</div>
+                <div>Email: </div>
+                <div>ຕັ້ງຢູ່: ຕັ້ງຢູ່ຕະຫລາດເຊົ້າມໍຊັ້ນ2</div>
+                <div>ທີ່ຢູ່: ບ້ານ ຫັດສະດີ ,ເມືອງ ຈັນທະບູລີ, ນະຄອນຫຼວງວຽງຈັນ</div>
+              </div>
+
+              <div className="col-6 text-end">
+                <div className='fs-18px'> No: {data.sale_billNo}</div>
+                <div className='fs-16px'> Date: {moment(data.sale_date).format('DD/MM/YYYY hh:mm')}</div>
+                <div>ຊື່ລູກຄ້າ: {data.cus_fname + ' ' + data.cus_lname}</div>
+                <div>ເບີໂທລະສັບ: {data.cus_tel}</div>
+                <div>ທີ່ຢູ່: {data.cus_address}</div>
+              </div>
+            </div>
+            <table className="table  table-bordered table-bordered align-middle w-100 text-nowrap">
+              <thead className='thead-plc'>
                 <tr>
-                  <td  className='text-center'>{index+1}</td>
-                  <td  className='text-center'>{item.code_id}</td>
-                  <td>{item.tile_name}</td>
-                  <td  className='text-center'>{item.qty_baht+' '+item.option_name}</td>
-                  <td  className='text-center'>{item.qty_grams} g</td>
-                  <td  className='text-center'>{item.qty_sale_add >0?(<span className='text-green'>+ {item.qty_sale_add}</span>):'-' } </td>
-                  <td  className='text-center'>{item.order_qty+'/'+item.unite_name}</td>
-                  <td  className='text-end'>{numeral(item.order_qty*item.price_pattern).format('0,00')}</td>
-                  <td className='text-end'>{numeral((item.total_balance)).format('0,00')}</td>
-                  <td>{item.zone_name}</td>
-                  <td>{item.staff_name}</td>
+                  <th width="1%" className='text-center'>ລ/ດ</th>
+                  <th className='text-center'>ລະຫັດ</th>
+                  <th className=''>ຊື່ສິນຄ້າ</th>
+                  <th className='text-center'>ນ້ຳໜັກ</th>
+                  <th className='text-center'>ກຣາມ</th>
+                  <th className='text-center'>ຊື້ເພີ່ມ</th>
+                  <th className='text-center'>ຈຳນວນ</th>
+                  <th className='text-end'>ຄ່າລາຍ</th>
+                  <th className='text-end'>ລວມເງິນ</th>
+                  <th className=''>ໂຊນຂາຍ</th>
+                  <th className=''>ພະນັກງານຂາຍ</th>
                 </tr>
+              </thead>
+              <tbody>
+                {detail.map((item, index) => (
+                  <tr>
+                    <td className='text-center'>{index + 1}</td>
+                    <td className='text-center'>{item.code_id}</td>
+                    <td>{item.tile_name}</td>
+                    <td className='text-center'>{item.qty_baht + ' ' + item.option_name}</td>
+                    <td className='text-center'>{item.qty_grams} g</td>
+                    <td className='text-center'>{item.qty_sale_add > 0 ? (<span className='text-green'>+ {item.qty_sale_add}</span>) : '-'} </td>
+                    <td className='text-center'>{item.order_qty + '/' + item.unite_name}</td>
+                    <td className='text-end'>{numeral(item.order_qty * item.price_pattern).format('0,00')}</td>
+                    <td className='text-end'>{numeral((item.total_balance)).format('0,00')}</td>
+                    <td>{item.zone_name}</td>
+                    <td>{item.staff_name}</td>
+                  </tr>
                 )
-              )}
-                </tbody>
-                <tfoot>
+                )}
+              </tbody>
+              <tfoot>
                 <tr className='border-bottom-0'>
-                <td colSpan={7} className='text-end border'>ລວມຍອດທັງໝົດ</td>
-                <td className='text-end bg-black border text-white'>{numeral(detail.reduce((acc, val) => acc + parseFloat(val.order_qty*val.price_pattern*val.qty_baht), 0)).format('0,00')}</td>
-                <td className='text-end bg-black border text-white'>{numeral(detail.reduce((acc, val) => acc + parseFloat(val.total_balance), 0)).format('0,00')}</td>
-                <td colSpan={2} className='border-0'></td>
-              </tr>
-                </tfoot>
-                </table>
-        </Modal.Body>
-        <Modal.Footer>
-          {/* <Button onClick={handlePrint} appearance="primary">
+                  <td colSpan={7} className='text-end border'>ລວມຍອດທັງໝົດ</td>
+                  <td className='text-end bg-black border text-white'>{numeral(detail.reduce((acc, val) => acc + parseFloat(val.order_qty * val.price_pattern * val.qty_baht), 0)).format('0,00')}</td>
+                  <td className='text-end bg-black border text-white'>{numeral(detail.reduce((acc, val) => acc + parseFloat(val.total_balance), 0)).format('0,00')}</td>
+                  <td colSpan={2} className='border-0'></td>
+                </tr>
+              </tfoot>
+            </table>
+            <hr />
+            <table className='table text-nowrap'>
+              <tbody>
+                <tr>
+                  <td width={'30%'} rowSpan={5} className='text-end border-0'>ປະເພດຈ່າຍເງິນ : {data.currency_name} ({data.genus})</td>
+                  <td width={'30%'} className='text-end border-0'>ລວມເປັນເງິນ :</td>
+                  <td width={'10%'}>{numeral(data.balance_totalpay).format('0,00')} {data.genus}</td>
+                </tr>
+                <tr>
+                  <td width={'30%'} className='text-end border-0'>ຈ່າຍເງິນສົດ :</td>
+                  <td width={'10%'}>{numeral(data.balance_cash).format('0,00')} {data.genus}</td>
+                </tr>
+                <tr>
+                  <td width={'30%'} className='text-end border-0'>ຈ່າຍເງິນໂອນ :</td>
+                  <td width={'10%'}>{numeral(data.balance_transfer).format('0,00')} {data.genus}</td>
+                </tr>
+                <tr>
+                  <td className='text-end border-0' >ເງິນທອນ</td>
+                  <td width={'10%'}>{numeral(data.balance_return).format('0,00')} ₭</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={3} className='text-let'>ພະນັກງານຂາຍ : {data.first_name} {data.last_name}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </Modal.Body>
+          <Modal.Footer>
+            {/* <Button onClick={handlePrint} appearance="primary">
           ພີມບິນ
           </Button> */}
-          <Button onClick={()=>handleModal(false)} appearance="primary" color='red'>
-          ອອກ
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    
+            <Button onClick={() => handleModal(false)} appearance="primary" color='red'>
+              ອອກ
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
       </div>
     </>
   )

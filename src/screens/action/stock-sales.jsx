@@ -4,6 +4,9 @@ import { SelectPicker, Placeholder, Input } from 'rsuite';
 import { useOption, useTitle, useZone,useWeight } from '../../utils/selectOption';
 import axios from 'axios';
 import { Config, Urlimage } from '../../config/connect';
+
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import numeral from 'numeral';
 function StockSales() {
     const api = Config.urlApi;
@@ -59,11 +62,17 @@ function StockSales() {
             setIsLoading(false);
         }
     }
-    // const [filter, setFilter] = useState('');
+    // const [filter, setFilter] = useState('');code_gold
+    // const Filter = (event) => {
+    //     setItemProduct(filterName.filter(item => item.tile_name.toLowerCase().includes(event)));
+    // }
     const Filter = (event) => {
-        setItemProduct(filterName.filter(item => item.tile_name.toLowerCase().includes(event)));
+        const searchTerm = event.toLowerCase();
+        setItemProduct(filterName.filter(n => 
+            n.tile_name.toLowerCase().includes(searchTerm) || 
+            n.code_gold.toLowerCase().includes(searchTerm) 
+        ));
     }
-
 
     //===========================\\
     const [currentPage, setcurrentPage] = useState(1);
@@ -124,6 +133,17 @@ function StockSales() {
     };
     //===========================\\
 
+    const exportToExcel = () => {
+        const table = document.getElementById('table-to-xls');
+        const worksheet = XLSX.utils.table_to_sheet(table);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "ະຕ໋ອກສິນຄ້າ");
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(dataBlob, "ລາຍງານສະຕ໋ອກສິນຄ້າ.xlsx");
+      };
+
+
     useEffect(() => {
         fetchStockPorduct();
     }, [])
@@ -133,26 +153,27 @@ function StockSales() {
                 <ol class="breadcrumb float-xl-end">
                     <li class="breadcrumb-item"><Link to={'/home'}>ໜ້າຫຼັກ</Link></li>
                     <li class="breadcrumb-item"><Link to={'/stock-all'}>ເບິ່ງແບບລວມ</Link></li>
-                    <li class="breadcrumb-item active">ລາຍການສິນຄ້າ</li>
+                    <li class="breadcrumb-item d-sm-block d-none active">ລາຍການສິນຄ້າ</li>
+                    <li class="breadcrumb-item"><span className='text-green fs-16px' onClick={exportToExcel} role='button'> <i class="fa-solid fa-download"/> Export</span></li>
                 </ol>
                 <h1 class="page-header mb-3">ສາງສິນຄ້າ</h1>
                 <div className="panel">
                     <div class="panel-body">
                         <div className="row mb-3">
-                            <div className="col-sm-3 form-group mb-2">
+                            <div className="col-sm-3 col-6 form-group mb-2">
                                 <label htmlFor="" className='form-label'>ຕູ້ຂາຍ</label>
                                 <SelectPicker data={itemZone} onChange={(e) => handleChange('zone_id_fk', e)} block placeholder="ເລືອກ" />
                             </div>
-                            <div className="col-sm-3 form-group mb-2">
+                            <div className="col-sm-3 col-6 form-group mb-2">
                                 <label htmlFor="" className='form-label'>ລາຍການ</label>
                                 <SelectPicker data={itemTitle} onChange={(e) => handleChange('tiles_id_fk', e)} block placeholder="ເລືອກ" />
                             </div>
-                            <div className="col-sm-2 form-group mb-2">
+                            <div className="col-sm-2 col-6 form-group mb-2">
                                 <label htmlFor="" className='form-label'>ຈຳນວນນ້ຳໜັກ</label>
                                 <Input type='number' onChange={(e) => handleChange('qty_baht', e)} block placeholder="ນ້ຳໜັກ" />
                             </div>
-                            <div className="col-sm-2 form-group mb-2">
-                                <label htmlFor="" className='form-label'>ຫົວໜວຍນ້ຳໜັກ</label>
+                            <div className="col-sm-2 col-6 form-group mb-2">
+                                <label htmlFor="" className='form-label'>ຫົວໜ່ວຍນ້ຳໜັກ</label>
                                 <SelectPicker data={itemOption} onChange={(e) => handleChange('option_id_fk', e)} block placeholder="ເລືອກ" />
                             </div>
                             <div className="col-sm-2 mt-4 mb-2">
@@ -160,7 +181,6 @@ function StockSales() {
                                 <button type='button' onClick={addResive} className='btn btn-dark fs-13px'><i className="fas fa-plus"></i> ນຳເຂົ້າ</button>
                             </div>
                         </div>
-                        <div className="table-responsive">
                             <div className="d-lg-flex align-items-center mb-2">
                                 <div className="d-lg-flex d-none align-items-center text-nowrap">
                                     ສະແດງ:
@@ -181,7 +201,8 @@ function StockSales() {
                                     <input type="search" onChange={(event) => Filter(event.target.value)} className='form-control' placeholder='ຄົ້ນຫານ້ຳໜັກ' />
                                 </div>
                             </div>
-                            <table className="table table-striped table-bordered align-middle w-100 text-nowrap">
+                        <div className="table-responsive">
+                            <table id='table-to-xls' className="table table-striped table-bordered align-middle w-100 text-nowrap">
                                 <thead className='thead-plc'>
                                     <tr>
                                         <th width="1%" className='text-center'>ລ/ດ</th>
@@ -192,7 +213,7 @@ function StockSales() {
                                         <th className='text-center'>ບັນຈຸ</th>
                                         <th className='text-end'>ລາຄາຊື້</th>
                                         <th className='text-end'>ລາຄາຂາຍ</th>
-                                        <th className=''>ຫົວໜວຍ</th>
+                                        <th className=''>ຫົວໜ່ວຍ</th>
                                         <th width='10%'>ໂຊນຂາຍ</th>
                                         <th className=''>ປະເພດ</th>
                                         <th className='text-center' width='7%'>ແຈ້ງເຕືອນ</th>
@@ -209,7 +230,7 @@ function StockSales() {
                                                         <td className='text-center with-img dt-type-numeric' width='5%'>
                                                             <img src={item.file_image !== '' ? paste + 'pos/' + item.file_image : 'assets/img/icon/picture.jpg'} className='rounded h-30px my-n1 mx-n1' alt="" />
                                                         </td>
-                                                        <td className='text-center'>{item.code_id}</td>
+                                                        <td className='text-center'>{item.code_gold}</td>
                                                         <td>{item.tile_name}</td>
                                                         <td className='text-center'>{item.qty_baht} {item.option_name}</td>
                                                         <td className='text-center'>{item.grams} g</td>

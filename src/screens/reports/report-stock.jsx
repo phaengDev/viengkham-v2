@@ -128,7 +128,7 @@ export default function ReportStock() {
                     <th className='text-center'>ນຳເຂົ້າ</th>
                     <th className='text-center'>ຂາຍອອກ</th>
                     <th className='text-center'>ຄົງເຫຼືອ</th>
-                    <th className=''>ຫົວໜວຍ</th>
+                    <th className=''>ຫົວໜ່ວຍ</th>
                     <th className=''>ໂຊນຂາຍ</th>
                   </tr>
                 </thead>
